@@ -1,6 +1,6 @@
 # Carvaan
 
-A trusted used-car marketplace for the UAE market. Buyers browse inspected cars, sellers get qualified leads, and every transaction is secure.
+A trusted used-car marketplace. Buyers browse inspected cars, sellers get qualified leads, and every transaction is secure.
 
 Built with **React Native (Expo)** and **Supabase**.
 
