@@ -24,7 +24,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: './assets/images/adaptive-icon.png',
+      foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundColor: '#0D7377',
     },
     package: 'com.cosmos.carvaan',
