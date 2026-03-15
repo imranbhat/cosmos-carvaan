@@ -10,7 +10,7 @@ export function usePhotoUpload() {
   const pickImage = async (): Promise<string | null> => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      quality: 1,
+      quality: 0.8,
       allowsEditing: true,
       aspect: [4, 3],
     });
@@ -24,7 +24,7 @@ export function usePhotoUpload() {
     if (!permission.granted) return null;
 
     const result = await ImagePicker.launchCameraAsync({
-      quality: 1,
+      quality: 0.8,
       allowsEditing: true,
       aspect: [4, 3],
     });
@@ -40,22 +40,39 @@ export function usePhotoUpload() {
   ): Promise<string> => {
     setProgress((p) => ({ ...p, [position]: 0 }));
 
-    // Use the picker's built-in quality setting; add expo-image-manipulator later for resizing
     const filename = `listings/${draftId}/${position}.jpg`;
 
-    const response = await fetch(localUri);
-    const blob = await response.blob();
+    // Use FormData — the most reliable upload method in React Native
+    const formData = new FormData();
+    formData.append('', {
+      uri: localUri,
+      name: `${position}.jpg`,
+      type: 'image/jpeg',
+    } as any);
 
-    setProgress((p) => ({ ...p, [position]: 50 }));
+    setProgress((p) => ({ ...p, [position]: 30 }));
 
-    const { error } = await supabase.storage
-      .from('car-photos')
-      .upload(filename, blob, {
-        contentType: 'image/jpeg',
-        upsert: true,
-      });
+    // Upload using the Supabase REST API directly with FormData
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
 
-    if (error) throw error;
+    const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const uploadUrl = `${supabaseUrl}/storage/v1/object/car-photos/${filename}`;
+
+    const res = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-upsert': 'true',
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error(`[upload] Storage upload failed (${res.status}):`, errBody);
+      throw new Error(`Upload failed: ${res.status}`);
+    }
 
     setProgress((p) => ({ ...p, [position]: 100 }));
 
@@ -81,8 +98,9 @@ export function usePhotoUpload() {
             try {
               const url = await uploadPhoto(photo.uri, draftId, photo.position);
               return { ...photo, remoteUrl: url, uploaded: true };
-            } catch {
+            } catch (err) {
               attempts++;
+              console.error(`[upload] Photo ${photo.position} attempt ${attempts} failed:`, err);
               if (attempts >= 3) throw new Error(`Failed to upload photo ${photo.position + 1}`);
             }
           }
