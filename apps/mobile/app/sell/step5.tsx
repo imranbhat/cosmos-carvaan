@@ -47,7 +47,7 @@ export default function SellStep5() {
     setSubmitting(true);
     try {
       // 1. Generate a draft ID for photo paths
-      const draftId = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const draftId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
       // 2. Upload photos
       const uploadedPhotos = await uploadAllPhotos(store.photos, draftId);
@@ -67,10 +67,10 @@ export default function SellStep5() {
           num_owners: store.numOwners,
           description: store.description || null,
           price: store.price!,
-          price_currency: 'AED',
+          price_currency: 'INR',
           negotiable: store.negotiable,
-          city: store.city ?? 'Dubai',
-          status: 'pending',
+          city: store.city ?? 'Srinagar',
+          status: 'pending_review',
         })
         .select('id')
         .single();
@@ -169,7 +169,7 @@ export default function SellStep5() {
               <Text style={styles.editLink}>Edit</Text>
             </Pressable>
           </View>
-          <Text style={styles.price}>{formatPrice(store.price ?? 0, 'AED')}</Text>
+          <Text style={styles.price}>{formatPrice(store.price ?? 0)}</Text>
           {store.negotiable && <Badge label="Negotiable" variant="muted" />}
         </View>
       </ScrollView>

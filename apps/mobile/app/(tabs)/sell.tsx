@@ -43,7 +43,7 @@ export default function SellScreen() {
         <Text style={styles.heroIcon}>🚗</Text>
         <Text style={styles.heroTitle}>Sell Your Car</Text>
         <Text style={styles.heroSubtitle}>
-          List your car and reach thousands of buyers across the UAE
+          List your car and reach thousands of buyers across Kashmir
         </Text>
       </View>
 

@@ -50,7 +50,7 @@ export default function SellStep4() {
           <View style={[styles.estimateCard, shadows.sm]}>
             <Text style={styles.estimateTitle}>Estimated Market Price</Text>
             <Text style={styles.estimatePrice}>
-              {formatPrice(estimatedPrice, 'AED')}
+              {formatPrice(estimatedPrice)}
             </Text>
             <View style={styles.rangeBar}>
               <View style={styles.rangeTrack}>
@@ -58,10 +58,10 @@ export default function SellStep4() {
               </View>
               <View style={styles.rangeLabels}>
                 <Text style={styles.rangeLabel}>
-                  {formatPrice(estimatedMin!, 'AED')}
+                  {formatPrice(estimatedMin!)}
                 </Text>
                 <Text style={styles.rangeLabel}>
-                  {formatPrice(estimatedMax!, 'AED')}
+                  {formatPrice(estimatedMax!)}
                 </Text>
               </View>
             </View>
@@ -73,9 +73,9 @@ export default function SellStep4() {
 
         {/* Price Input */}
         <View style={styles.field}>
-          <Text style={styles.label}>Your Asking Price (AED) *</Text>
+          <Text style={styles.label}>Your Asking Price (₹) *</Text>
           <View style={styles.priceInputRow}>
-            <Text style={styles.currency}>AED</Text>
+            <Text style={styles.currency}>₹</Text>
             <TextInput
               style={styles.priceInput}
               value={store.price ? String(store.price) : ''}
