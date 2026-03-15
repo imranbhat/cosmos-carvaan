@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, Pressable } from 'react-native';
+import { ScrollView, StyleSheet, Text, Pressable, View } from 'react-native';
 import { colors, borderRadius, spacing, typography } from '@/constants/theme';
 
 const QUICK_REPLIES = [
@@ -15,29 +15,37 @@ interface QuickRepliesProps {
 
 export function QuickReplies({ onSelect }: QuickRepliesProps) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      {QUICK_REPLIES.map((reply) => (
-        <Pressable
-          key={reply}
-          style={styles.chip}
-          onPress={() => onSelect(reply)}
-        >
-          <Text style={styles.chipText}>{reply}</Text>
-        </Pressable>
-      ))}
-    </ScrollView>
+    <View style={styles.wrapper}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+      >
+        {QUICK_REPLIES.map((reply) => (
+          <Pressable
+            key={reply}
+            style={styles.chip}
+            onPress={() => onSelect(reply)}
+          >
+            <Text style={styles.chipText}>{reply}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
+    backgroundColor: colors.surface,
+  },
   container: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
+    alignItems: 'center',
   },
   chip: {
     paddingHorizontal: spacing.md,

@@ -149,10 +149,19 @@ export default function ChatThreadScreen() {
         )}
         inverted
         style={styles.messageList}
-        contentContainerStyle={styles.messageContent}
+        contentContainerStyle={[
+          styles.messageContent,
+          messages.length === 0 && styles.emptyList,
+        ]}
         showsVerticalScrollIndicator={false}
         onEndReached={loadMore}
         onEndReachedThreshold={0.3}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No messages yet</Text>
+            <Text style={styles.emptyHint}>Send a message to start the conversation</Text>
+          </View>
+        }
       />
 
       {/* Quick Replies */}
@@ -205,4 +214,8 @@ const styles = StyleSheet.create({
 
   messageList: { flex: 1 },
   messageContent: { paddingVertical: spacing.md },
+  emptyList: { flexGrow: 1, justifyContent: 'center' },
+  emptyState: { alignItems: 'center', padding: spacing.xl },
+  emptyText: { ...typography.label, color: colors.textSecondary },
+  emptyHint: { ...typography.caption, color: colors.textTertiary, marginTop: spacing.xs },
 });
