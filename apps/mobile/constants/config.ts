@@ -10,8 +10,8 @@ export const config = {
   otpExpirySeconds: 120,
   listingExpiryDays: 90,
   offerExpiryHours: 48,
-  defaultCurrency: 'AED',
-  supportedLanguages: ['en', 'ar'] as const,
+  defaultCurrency: 'INR',
+  supportedLanguages: ['en', 'hi', 'ur'] as const,
 } as const;
 
 export const queryConfig = {

@@ -11,8 +11,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { colors, borderRadius, spacing, typography } from '@/constants/theme';
 
 const CITIES = [
-  'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Al Ain',
-  'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain',
+  'Srinagar', 'Jammu', 'Baramulla', 'Anantnag', 'Sopore',
+  'Pulwama', 'Kupwara', 'Budgam',
 ];
 
 export default function EditProfileScreen() {

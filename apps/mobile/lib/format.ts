@@ -1,5 +1,6 @@
-export function formatPrice(amount: number, currency = 'AED'): string {
-  return `${currency} ${amount.toLocaleString('en-US')}`;
+export function formatPrice(amount: number, currency = '₹'): string {
+  const symbol = currency === 'INR' ? '₹' : currency;
+  return `${symbol}${amount.toLocaleString('en-IN')}`;
 }
 
 export function formatMileage(km: number): string {

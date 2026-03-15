@@ -44,7 +44,7 @@ export interface MockListing {
   photos: { id: string; url: string; thumbnail_url: string; position: number; is_primary: boolean }[];
 }
 
-const CITIES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah'];
+const CITIES = ['Srinagar', 'Jammu', 'Baramulla', 'Anantnag', 'Sopore', 'Pulwama', 'Kupwara', 'Budgam'];
 const CONDITIONS = ['Excellent', 'Good', 'Fair'];
 const COLORS = ['White', 'Black', 'Silver', 'Blue', 'Red', 'Grey'];
 
@@ -73,18 +73,18 @@ const CARS: Array<{
   yearRange: [number, number];
   priceRange: [number, number];
 }> = [
-  { make: 'Toyota', model: 'Land Cruiser', bodyType: 'SUV', variant: 'GXR V8', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 4600, yearRange: [2018, 2024], priceRange: [120000, 280000] },
-  { make: 'BMW', model: 'X5', bodyType: 'SUV', variant: 'xDrive40i', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 3000, yearRange: [2019, 2024], priceRange: [150000, 320000] },
-  { make: 'Mercedes-Benz', model: 'E-Class', bodyType: 'Sedan', variant: 'E300', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 2000, yearRange: [2020, 2024], priceRange: [140000, 260000] },
-  { make: 'Nissan', model: 'Patrol', bodyType: 'SUV', variant: 'Platinum V8', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 5600, yearRange: [2017, 2024], priceRange: [100000, 340000] },
-  { make: 'Porsche', model: 'Cayenne', bodyType: 'SUV', variant: 'S', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 2900, yearRange: [2019, 2024], priceRange: [200000, 450000] },
-  { make: 'Audi', model: 'Q7', bodyType: 'SUV', variant: '55 TFSI', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 3000, yearRange: [2019, 2024], priceRange: [140000, 280000] },
-  { make: 'Range Rover', model: 'Vogue', bodyType: 'SUV', variant: 'SE V6', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 3000, yearRange: [2018, 2024], priceRange: [200000, 550000] },
-  { make: 'Lexus', model: 'LX 570', bodyType: 'SUV', variant: 'Sport', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 5700, yearRange: [2018, 2023], priceRange: [170000, 380000] },
-  { make: 'Honda', model: 'Accord', bodyType: 'Sedan', variant: '2.0 Sport', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 2000, yearRange: [2019, 2024], priceRange: [55000, 110000] },
-  { make: 'Toyota', model: 'Camry', bodyType: 'Sedan', variant: 'SE', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 2500, yearRange: [2019, 2024], priceRange: [50000, 100000] },
-  { make: 'Mercedes-Benz', model: 'G-Class', bodyType: 'SUV', variant: 'G63 AMG', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 4000, yearRange: [2019, 2024], priceRange: [450000, 850000] },
-  { make: 'BMW', model: '5 Series', bodyType: 'Sedan', variant: '530i M Sport', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 2000, yearRange: [2020, 2024], priceRange: [160000, 280000] },
+  { make: 'Maruti Suzuki', model: 'Swift', bodyType: 'Hatchback', variant: 'ZXi+ DualJet', fuelType: 'Petrol', transmission: 'Manual', engineCc: 1197, yearRange: [2018, 2024], priceRange: [450000, 850000] },
+  { make: 'Hyundai', model: 'Creta', bodyType: 'SUV', variant: 'SX', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 1497, yearRange: [2019, 2024], priceRange: [850000, 1600000] },
+  { make: 'Mahindra', model: 'Scorpio N', bodyType: 'SUV', variant: 'Z8L', fuelType: 'Diesel', transmission: 'Automatic', engineCc: 2184, yearRange: [2022, 2024], priceRange: [1200000, 2200000] },
+  { make: 'Tata', model: 'Nexon', bodyType: 'SUV', variant: 'XZ+', fuelType: 'Petrol', transmission: 'Manual', engineCc: 1199, yearRange: [2020, 2024], priceRange: [700000, 1300000] },
+  { make: 'Toyota', model: 'Innova Crysta', bodyType: 'Van', variant: 'VX', fuelType: 'Diesel', transmission: 'Automatic', engineCc: 2393, yearRange: [2018, 2024], priceRange: [1500000, 2800000] },
+  { make: 'Maruti Suzuki', model: 'Baleno', bodyType: 'Hatchback', variant: 'Alpha AMT', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 1197, yearRange: [2019, 2024], priceRange: [500000, 900000] },
+  { make: 'Mahindra', model: 'Thar', bodyType: 'SUV', variant: 'LX Hard Top', fuelType: 'Diesel', transmission: 'Manual', engineCc: 2184, yearRange: [2020, 2024], priceRange: [1100000, 1800000] },
+  { make: 'Hyundai', model: 'i20', bodyType: 'Hatchback', variant: 'Asta', fuelType: 'Petrol', transmission: 'Manual', engineCc: 1197, yearRange: [2019, 2024], priceRange: [550000, 1100000] },
+  { make: 'Kia', model: 'Seltos', bodyType: 'SUV', variant: 'HTX+', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 1497, yearRange: [2020, 2024], priceRange: [900000, 1600000] },
+  { make: 'Maruti Suzuki', model: 'Brezza', bodyType: 'SUV', variant: 'ZXi+', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 1462, yearRange: [2019, 2024], priceRange: [700000, 1200000] },
+  { make: 'Toyota', model: 'Fortuner', bodyType: 'SUV', variant: '4x4 AT', fuelType: 'Diesel', transmission: 'Automatic', engineCc: 2755, yearRange: [2018, 2024], priceRange: [2500000, 4500000] },
+  { make: 'Tata', model: 'Punch', bodyType: 'SUV', variant: 'Creative AMT', fuelType: 'Petrol', transmission: 'Automatic', engineCc: 1199, yearRange: [2021, 2024], priceRange: [550000, 950000] },
 ];
 
 function generateListing(index: number): MockListing {
@@ -115,7 +115,7 @@ function generateListing(index: number): MockListing {
     year,
     mileage,
     price,
-    price_currency: 'AED',
+    price_currency: 'INR',
     negotiable: Math.random() > 0.4,
     city: randomFrom(CITIES),
     featured: index < 4,
@@ -123,7 +123,7 @@ function generateListing(index: number): MockListing {
     condition: randomFrom(CONDITIONS),
     color: randomFrom(COLORS),
     num_owners: 1 + Math.floor(Math.random() * 3),
-    description: `${year} ${car.make} ${car.model} ${car.variant} in excellent condition. Well maintained with full service history. GCC specs.`,
+    description: `${year} ${car.make} ${car.model} ${car.variant} in excellent condition. Well maintained with full service history. Indian specs.`,
     views_count: Math.floor(Math.random() * 500),
     saves_count: Math.floor(Math.random() * 50),
     created_at: daysAgo(Math.floor(Math.random() * 30)),
@@ -132,7 +132,7 @@ function generateListing(index: number): MockListing {
     variant: { id: makeId('var', CARS.indexOf(car)), name: car.variant, fuel_type: car.fuelType, transmission: car.transmission, engine_cc: car.engineCc },
     seller: {
       id: makeId('user', index % 6),
-      full_name: ['Ahmed K.', 'Sara M.', 'Khalid R.', 'Fatima A.', 'Omar N.', 'Layla H.'][index % 6],
+      full_name: ['Faisal M.', 'Aaliya S.', 'Irfan B.', 'Nusrat W.', 'Tariq L.', 'Suhail D.'][index % 6],
       avatar_url: null,
       rating_avg: 3.5 + Math.random() * 1.5,
       rating_count: 5 + Math.floor(Math.random() * 45),
@@ -149,8 +149,13 @@ export const MOCK_FEATURED: MockListing[] = MOCK_LISTINGS.filter(l => l.featured
 
 /**
  * Check if we should use mock data.
- * Returns true when there's no Supabase data (empty arrays from queries).
+ * Returns true when there's no Supabase data (empty arrays from queries),
+ * or when the DB data still uses old non-INR currency.
  */
 export function shouldUseMockData(data: unknown[] | undefined | null): boolean {
-  return !data || data.length === 0;
+  if (!data || data.length === 0) return true;
+  // Use mock data if DB records still have old currency
+  const first = data[0] as Record<string, unknown> | undefined;
+  if (first && 'price_currency' in first && first.price_currency !== 'INR') return true;
+  return false;
 }

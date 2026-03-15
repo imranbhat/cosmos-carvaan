@@ -17,7 +17,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'mileage', label: 'Lowest Mileage' },
   { value: 'year', label: 'Newest Year' },
 ];
-const CITIES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Al Ain', 'Riyadh', 'Jeddah'];
+const CITIES = ['Srinagar', 'Jammu', 'Baramulla', 'Anantnag', 'Sopore', 'Pulwama', 'Kupwara', 'Budgam'];
 
 export const FilterSheet = forwardRef<BottomSheet>((_, ref) => {
   const snapPoints = useMemo(() => ['85%'], []);
