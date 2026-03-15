@@ -1,6 +1,6 @@
 -- Saved cars
 CREATE TABLE saved_cars (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   listing_id  UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -11,7 +11,7 @@ CREATE INDEX idx_saved_cars_user ON saved_cars(user_id, created_at DESC);
 
 -- Saved searches
 CREATE TABLE saved_searches (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   label       TEXT,
   filters     JSONB NOT NULL,
@@ -23,7 +23,7 @@ CREATE INDEX idx_saved_searches_user ON saved_searches(user_id);
 
 -- Offers
 CREATE TABLE offers (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id    UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   buyer_id      UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   amount        INTEGER NOT NULL CHECK (amount > 0),
@@ -40,7 +40,7 @@ CREATE INDEX idx_offers_buyer ON offers(buyer_id, created_at DESC);
 
 -- Test drives
 CREATE TABLE test_drives (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id    UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   buyer_id      UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   scheduled_at  TIMESTAMPTZ NOT NULL,
@@ -55,7 +55,7 @@ CREATE INDEX idx_test_drives_buyer ON test_drives(buyer_id);
 
 -- Reviews
 CREATE TABLE reviews (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   reviewer_id   UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   reviewee_id   UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   listing_id    UUID REFERENCES listings(id) ON DELETE SET NULL,

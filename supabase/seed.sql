@@ -1,96 +1,120 @@
--- Seed car makes (top 30 brands)
+-- Seed car makes (top brands available in Kashmir/India)
 INSERT INTO car_makes (name, country, is_popular, sort_order) VALUES
-  ('Toyota', 'Japan', TRUE, 1),
-  ('Honda', 'Japan', TRUE, 2),
-  ('Nissan', 'Japan', TRUE, 3),
-  ('BMW', 'Germany', TRUE, 4),
-  ('Mercedes-Benz', 'Germany', TRUE, 5),
-  ('Audi', 'Germany', TRUE, 6),
-  ('Hyundai', 'South Korea', TRUE, 7),
-  ('Kia', 'South Korea', TRUE, 8),
-  ('Ford', 'USA', TRUE, 9),
-  ('Chevrolet', 'USA', TRUE, 10),
-  ('Lexus', 'Japan', FALSE, 11),
-  ('Porsche', 'Germany', FALSE, 12),
-  ('Land Rover', 'UK', FALSE, 13),
-  ('Jeep', 'USA', FALSE, 14),
-  ('Volkswagen', 'Germany', FALSE, 15),
-  ('Mazda', 'Japan', FALSE, 16),
-  ('Mitsubishi', 'Japan', FALSE, 17),
-  ('Subaru', 'Japan', FALSE, 18),
-  ('Infiniti', 'Japan', FALSE, 19),
-  ('GMC', 'USA', FALSE, 20),
-  ('Dodge', 'USA', FALSE, 21),
-  ('Ram', 'USA', FALSE, 22),
-  ('Cadillac', 'USA', FALSE, 23),
-  ('Genesis', 'South Korea', FALSE, 24),
-  ('Volvo', 'Sweden', FALSE, 25),
-  ('Jaguar', 'UK', FALSE, 26),
-  ('Maserati', 'Italy', FALSE, 27),
-  ('Tesla', 'USA', FALSE, 28),
-  ('Suzuki', 'Japan', FALSE, 29),
-  ('Renault', 'France', FALSE, 30);
+  ('Maruti Suzuki', 'India', TRUE, 1),
+  ('Hyundai', 'South Korea', TRUE, 2),
+  ('Tata', 'India', TRUE, 3),
+  ('Mahindra', 'India', TRUE, 4),
+  ('Toyota', 'Japan', TRUE, 5),
+  ('Kia', 'South Korea', TRUE, 6),
+  ('Honda', 'Japan', TRUE, 7),
+  ('Renault', 'France', TRUE, 8),
+  ('Nissan', 'Japan', TRUE, 9),
+  ('MG', 'China', TRUE, 10),
+  ('Skoda', 'Czech Republic', FALSE, 11),
+  ('Volkswagen', 'Germany', FALSE, 12),
+  ('Ford', 'USA', FALSE, 13),
+  ('BMW', 'Germany', FALSE, 14),
+  ('Mercedes-Benz', 'Germany', FALSE, 15),
+  ('Audi', 'Germany', FALSE, 16),
+  ('Jeep', 'USA', FALSE, 17),
+  ('Citroen', 'France', FALSE, 18),
+  ('Isuzu', 'Japan', FALSE, 19),
+  ('Force Motors', 'India', FALSE, 20);
 
--- Seed popular models (Toyota)
+-- Maruti Suzuki models
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, 'Camry', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Toyota'
-UNION ALL
-SELECT id, 'Corolla', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Toyota'
-UNION ALL
-SELECT id, 'Land Cruiser', 'suv', 2000, NULL, TRUE FROM car_makes WHERE name = 'Toyota'
-UNION ALL
-SELECT id, 'RAV4', 'suv', 2005, NULL, TRUE FROM car_makes WHERE name = 'Toyota'
-UNION ALL
-SELECT id, 'Hilux', 'truck', 2005, NULL, FALSE FROM car_makes WHERE name = 'Toyota'
-UNION ALL
-SELECT id, 'Yaris', 'hatchback', 2005, NULL, FALSE FROM car_makes WHERE name = 'Toyota';
-
--- Honda models
+  SELECT id, 'Swift', 'hatchback'::body_type, 2005, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, 'Civic', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Honda'
-UNION ALL
-SELECT id, 'Accord', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Honda'
-UNION ALL
-SELECT id, 'CR-V', 'suv', 2002, NULL, TRUE FROM car_makes WHERE name = 'Honda'
-UNION ALL
-SELECT id, 'Pilot', 'suv', 2005, NULL, FALSE FROM car_makes WHERE name = 'Honda';
-
--- Nissan models
+  SELECT id, 'Baleno', 'hatchback'::body_type, 2015, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, 'Patrol', 'suv', 2000, NULL, TRUE FROM car_makes WHERE name = 'Nissan'
-UNION ALL
-SELECT id, 'Altima', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Nissan'
-UNION ALL
-SELECT id, 'Pathfinder', 'suv', 2005, NULL, FALSE FROM car_makes WHERE name = 'Nissan'
-UNION ALL
-SELECT id, 'Sentra', 'sedan', 2000, NULL, FALSE FROM car_makes WHERE name = 'Nissan';
-
--- BMW models
+  SELECT id, 'Brezza', 'suv'::body_type, 2016, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, '3 Series', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'BMW'
-UNION ALL
-SELECT id, '5 Series', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'BMW'
-UNION ALL
-SELECT id, 'X5', 'suv', 2005, NULL, TRUE FROM car_makes WHERE name = 'BMW'
-UNION ALL
-SELECT id, 'X3', 'suv', 2005, NULL, FALSE FROM car_makes WHERE name = 'BMW';
-
--- Mercedes models
+  SELECT id, 'Alto', 'hatchback'::body_type, 2000, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, 'C-Class', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Mercedes-Benz'
-UNION ALL
-SELECT id, 'E-Class', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Mercedes-Benz'
-UNION ALL
-SELECT id, 'GLE', 'suv', 2010, NULL, TRUE FROM car_makes WHERE name = 'Mercedes-Benz'
-UNION ALL
-SELECT id, 'GLC', 'suv', 2015, NULL, FALSE FROM car_makes WHERE name = 'Mercedes-Benz';
+  SELECT id, 'WagonR', 'hatchback'::body_type, 2000, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Dzire', 'sedan'::body_type, 2008, NULL, TRUE FROM car_makes WHERE name = 'Maruti Suzuki';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Ertiga', 'van'::body_type, 2012, NULL, FALSE FROM car_makes WHERE name = 'Maruti Suzuki';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Grand Vitara', 'suv'::body_type, 2022, NULL, FALSE FROM car_makes WHERE name = 'Maruti Suzuki';
 
 -- Hyundai models
 INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
-SELECT id, 'Tucson', 'suv', 2005, NULL, TRUE FROM car_makes WHERE name = 'Hyundai'
-UNION ALL
-SELECT id, 'Elantra', 'sedan', 2000, NULL, TRUE FROM car_makes WHERE name = 'Hyundai'
-UNION ALL
-SELECT id, 'Santa Fe', 'suv', 2005, NULL, FALSE FROM car_makes WHERE name = 'Hyundai'
-UNION ALL
-SELECT id, 'Sonata', 'sedan', 2000, NULL, FALSE FROM car_makes WHERE name = 'Hyundai';
+  SELECT id, 'Creta', 'suv'::body_type, 2015, NULL, TRUE FROM car_makes WHERE name = 'Hyundai';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'i20', 'hatchback'::body_type, 2008, NULL, TRUE FROM car_makes WHERE name = 'Hyundai';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Venue', 'suv'::body_type, 2019, NULL, TRUE FROM car_makes WHERE name = 'Hyundai';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Verna', 'sedan'::body_type, 2006, NULL, TRUE FROM car_makes WHERE name = 'Hyundai';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Tucson', 'suv'::body_type, 2005, NULL, FALSE FROM car_makes WHERE name = 'Hyundai';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Grand i10 Nios', 'hatchback'::body_type, 2013, NULL, FALSE FROM car_makes WHERE name = 'Hyundai';
+
+-- Tata models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Nexon', 'suv'::body_type, 2017, NULL, TRUE FROM car_makes WHERE name = 'Tata';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Punch', 'suv'::body_type, 2021, NULL, TRUE FROM car_makes WHERE name = 'Tata';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Harrier', 'suv'::body_type, 2019, NULL, TRUE FROM car_makes WHERE name = 'Tata';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Altroz', 'hatchback'::body_type, 2020, NULL, FALSE FROM car_makes WHERE name = 'Tata';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Safari', 'suv'::body_type, 2021, NULL, FALSE FROM car_makes WHERE name = 'Tata';
+
+-- Mahindra models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Scorpio N', 'suv'::body_type, 2022, NULL, TRUE FROM car_makes WHERE name = 'Mahindra';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Thar', 'suv'::body_type, 2020, NULL, TRUE FROM car_makes WHERE name = 'Mahindra';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'XUV700', 'suv'::body_type, 2021, NULL, TRUE FROM car_makes WHERE name = 'Mahindra';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Bolero', 'suv'::body_type, 2000, NULL, TRUE FROM car_makes WHERE name = 'Mahindra';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'XUV300', 'suv'::body_type, 2019, NULL, FALSE FROM car_makes WHERE name = 'Mahindra';
+
+-- Toyota models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Innova Crysta', 'van'::body_type, 2005, NULL, TRUE FROM car_makes WHERE name = 'Toyota';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Fortuner', 'suv'::body_type, 2009, NULL, TRUE FROM car_makes WHERE name = 'Toyota';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Glanza', 'hatchback'::body_type, 2019, NULL, TRUE FROM car_makes WHERE name = 'Toyota';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Urban Cruiser Hyryder', 'suv'::body_type, 2022, NULL, FALSE FROM car_makes WHERE name = 'Toyota';
+
+-- Kia models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Seltos', 'suv'::body_type, 2019, NULL, TRUE FROM car_makes WHERE name = 'Kia';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Sonet', 'suv'::body_type, 2020, NULL, TRUE FROM car_makes WHERE name = 'Kia';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Carens', 'van'::body_type, 2022, NULL, FALSE FROM car_makes WHERE name = 'Kia';
+
+-- Honda models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'City', 'sedan'::body_type, 2000, NULL, TRUE FROM car_makes WHERE name = 'Honda';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Amaze', 'sedan'::body_type, 2013, NULL, TRUE FROM car_makes WHERE name = 'Honda';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Elevate', 'suv'::body_type, 2023, NULL, FALSE FROM car_makes WHERE name = 'Honda';
+
+-- Renault models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Kwid', 'hatchback'::body_type, 2015, NULL, TRUE FROM car_makes WHERE name = 'Renault';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Kiger', 'suv'::body_type, 2021, NULL, TRUE FROM car_makes WHERE name = 'Renault';
+
+-- Nissan models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Magnite', 'suv'::body_type, 2020, NULL, TRUE FROM car_makes WHERE name = 'Nissan';
+
+-- MG models
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Hector', 'suv'::body_type, 2019, NULL, TRUE FROM car_makes WHERE name = 'MG';
+INSERT INTO car_models (make_id, name, body_type, year_start, year_end, is_popular)
+  SELECT id, 'Astor', 'suv'::body_type, 2021, NULL, FALSE FROM car_makes WHERE name = 'MG';

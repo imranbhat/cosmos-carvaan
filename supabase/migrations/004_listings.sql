@@ -1,5 +1,5 @@
 CREATE TABLE listings (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   seller_id             UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   make_id               UUID NOT NULL REFERENCES car_makes(id),
   model_id              UUID NOT NULL REFERENCES car_models(id),
@@ -7,7 +7,7 @@ CREATE TABLE listings (
   year                  INTEGER NOT NULL CHECK (year >= 1990),
   mileage               INTEGER NOT NULL CHECK (mileage >= 0),
   price                 INTEGER NOT NULL CHECK (price > 0),
-  price_currency        TEXT NOT NULL DEFAULT 'AED',
+  price_currency        TEXT NOT NULL DEFAULT 'INR',
   negotiable            BOOLEAN DEFAULT TRUE,
   color                 TEXT,
   city                  TEXT NOT NULL,
@@ -83,7 +83,7 @@ CREATE TRIGGER trg_listings_price_drop
 
 -- Listing photos
 CREATE TABLE listing_photos (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id  UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   url         TEXT NOT NULL,
   thumbnail_url TEXT,

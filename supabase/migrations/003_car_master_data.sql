@@ -1,5 +1,5 @@
 CREATE TABLE car_makes (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        TEXT NOT NULL UNIQUE,
   name_ar     TEXT,
   logo_url    TEXT,
@@ -12,7 +12,7 @@ CREATE TABLE car_makes (
 CREATE INDEX idx_car_makes_popular ON car_makes(is_popular, sort_order);
 
 CREATE TABLE car_models (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   make_id     UUID NOT NULL REFERENCES car_makes(id) ON DELETE CASCADE,
   name        TEXT NOT NULL,
   name_ar     TEXT,
@@ -27,7 +27,7 @@ CREATE TABLE car_models (
 CREATE INDEX idx_car_models_make ON car_models(make_id);
 
 CREATE TABLE car_variants (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   model_id      UUID NOT NULL REFERENCES car_models(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
   engine_cc     INTEGER,
