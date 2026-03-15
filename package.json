@@ -1,5 +1,16 @@
 {
   "name": "cosmos-carvaan",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "dev:mobile": "cd apps/mobile && npx expo start",
+    "dev:web": "cd apps/web && npm run dev -- -p 3000",
+    "dev:admin": "cd apps/admin && npm run dev -- -p 3001",
+    "dev:all": "npm run dev:web & npm run dev:admin & wait",
+    "build:web": "cd apps/web && npm run build",
+    "build:admin": "cd apps/admin && npm run build"
+  },
+  "dependencies": {
+    "expo": "^55.0.6"
+  }
 }
