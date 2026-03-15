@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --admin-primary: #6B3A2A;
+  --admin-primary-light: #8B5E3C;
+  --admin-primary-dark: #4A2518;
+  --admin-accent: #D4A017;
+  --admin-bg: #FDF8F3;
+  --admin-surface: #FFFFFF;
+  --admin-text: #1C1210;
+  --admin-text-secondary: #5C4033;
+  --admin-text-tertiary: #9C8578;
+  --admin-border: #E8DDD5;
+  --admin-success: #2E7D32;
+  --admin-error: #C62828;
+  --admin-warning: #E65100;
+  --admin-info: #1565C0;
+}
+
+@theme inline {
+  --color-primary: var(--admin-primary);
+  --color-primary-light: var(--admin-primary-light);
+  --color-primary-dark: var(--admin-primary-dark);
+  --color-accent: var(--admin-accent);
+  --color-admin-bg: var(--admin-bg);
+  --color-surface: var(--admin-surface);
+  --color-admin-text: var(--admin-text);
+  --color-admin-text-secondary: var(--admin-text-secondary);
+  --color-admin-text-tertiary: var(--admin-text-tertiary);
+  --color-admin-border: var(--admin-border);
+  --color-success: var(--admin-success);
+  --color-error: var(--admin-error);
+  --color-warning: var(--admin-warning);
+  --color-info: var(--admin-info);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
