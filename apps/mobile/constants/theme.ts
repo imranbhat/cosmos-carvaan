@@ -1,33 +1,33 @@
 export const colors = {
-  primary: '#0A6C6E',
-  primaryLight: '#0E9598',
-  primaryDark: '#074D4F',
-  primaryMuted: 'rgba(10, 108, 110, 0.08)',
+  primary: '#6B3A2A',
+  primaryLight: '#8B5E3C',
+  primaryDark: '#4A2518',
+  primaryMuted: 'rgba(107, 58, 42, 0.08)',
 
-  accent: '#F59E0B',
-  accentLight: '#FCD34D',
-  accentDark: '#D97706',
+  accent: '#D4A017',
+  accentLight: '#E8C547',
+  accentDark: '#B8860B',
 
-  background: '#F5F6F8',
+  background: '#FDF8F3',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
   card: '#FFFFFF',
 
-  text: '#0F172A',
-  textSecondary: '#475569',
-  textTertiary: '#94A3B8',
+  text: '#1C1210',
+  textSecondary: '#5C4033',
+  textTertiary: '#9C8578',
   textInverse: '#FFFFFF',
 
-  border: '#E2E8F0',
-  borderLight: '#F1F5F9',
+  border: '#E8DDD5',
+  borderLight: '#F5EDE6',
 
-  success: '#059669',
-  error: '#DC2626',
+  success: '#2E7D32',
+  error: '#C62828',
   warning: '#D97706',
   info: '#2563EB',
 
   overlay: 'rgba(0, 0, 0, 0.5)',
-  shimmer: '#E2E8F0',
+  shimmer: '#E8DDD5',
 } as const;
 
 export const spacing = {
