@@ -4,6 +4,31 @@ import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 import { config } from '@/constants/config';
 
+// --- DEV: Log all outgoing REST requests ---
+if (__DEV__) {
+  const originalFetch = global.fetch;
+  global.fetch = async (input: any, init?: any) => {
+    const url = typeof input === 'string' ? input : input?.url ?? String(input);
+    const method = init?.method ?? 'GET';
+    console.log(`🌐 ${method} ${url}`);
+    if (init?.body) {
+      try {
+        const body = typeof init.body === 'string' ? init.body : JSON.stringify(init.body);
+        console.log(`   📦 ${body.slice(0, 500)}`);
+      } catch {}
+    }
+    const res = await originalFetch(input, init);
+    // Clone so we can read body without consuming it
+    const clone = res.clone();
+    clone.text().then((text: string) => {
+      const status = res.status;
+      const preview = text.slice(0, 500);
+      console.log(`   ← ${status} ${preview}`);
+    }).catch(() => {});
+    return res;
+  };
+}
+
 /**
  * Web-safe storage adapter.
  * During SSR (no `window`), falls back to an in-memory map

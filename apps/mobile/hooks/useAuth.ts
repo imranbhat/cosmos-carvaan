@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore, type Profile } from '@/stores/authStore';
 
 export function useAuth() {
-  const { session, profile, isLoading, isOnboarded, setSession, setProfile, setLoading } =
+  const { session, profile, isLoading, isOnboarded, isGuest, setSession, setProfile, setLoading, setGuest } =
     useAuthStore();
 
   useEffect(() => {
@@ -47,15 +47,30 @@ export function useAuth() {
   }
 
   async function signInWithOtp(phone: string) {
-    const { error } = await supabase.auth.signInWithOtp({ phone });
-    if (error) throw error;
+    // Dev mode: use email-based password auth to avoid needing a real SMS provider.
+    // Map phone to a deterministic fake email so no SMS is sent.
+    const safePhone = phone.replace(/[^0-9]/g, '');
+    const fakeEmail = `${safePhone}@carvaan.dev`;
+    const devPassword = `carvaan_dev_${safePhone}`;
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: fakeEmail,
+      password: devPassword,
+      options: { data: { phone } },
+    });
+    // Ignore "user already registered" errors
+    if (signUpError && !signUpError.message.includes('already registered')) {
+      throw signUpError;
+    }
   }
 
-  async function verifyOtp(phone: string, token: string) {
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms',
+  async function verifyOtp(phone: string, _token: string) {
+    // Dev mode: accept any OTP by signing in with the dev password
+    const safePhone = phone.replace(/[^0-9]/g, '');
+    const fakeEmail = `${safePhone}@carvaan.dev`;
+    const devPassword = `carvaan_dev_${safePhone}`;
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: fakeEmail,
+      password: devPassword,
     });
     if (error) throw error;
     return data;
@@ -67,13 +82,20 @@ export function useAuth() {
     useAuthStore.getState().logout();
   }
 
+  function enterGuestMode() {
+    setGuest(true);
+    setLoading(false);
+  }
+
   return {
     session,
     profile,
     isLoading,
     isOnboarded,
+    isGuest,
     signInWithOtp,
     verifyOtp,
     signOut,
+    enterGuestMode,
   };
 }

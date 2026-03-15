@@ -19,10 +19,12 @@ interface AuthState {
   profile: Profile | null;
   isLoading: boolean;
   isOnboarded: boolean;
+  isGuest: boolean;
   setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
   setLoading: (loading: boolean) => void;
   updateProfile: (partial: Partial<Profile>) => void;
+  setGuest: (guest: boolean) => void;
   logout: () => void;
 }
 
@@ -31,6 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   profile: null,
   isLoading: true,
   isOnboarded: false,
+  isGuest: false,
   setSession: (session) => set({ session }),
   setProfile: (profile) =>
     set({
@@ -42,10 +45,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set((state) => ({
       profile: state.profile ? { ...state.profile, ...partial } : null,
     })),
+  setGuest: (isGuest) => set({ isGuest }),
   logout: () =>
     set({
       session: null,
       profile: null,
       isOnboarded: false,
+      isGuest: false,
     }),
 }));

@@ -10,7 +10,7 @@ import { colors, spacing, typography } from '@/constants/theme';
 export default function LoginScreen() {
   const [phone, setPhone] = useState('+971');
   const [loading, setLoading] = useState(false);
-  const { signInWithOtp } = useAuth();
+  const { signInWithOtp, enterGuestMode } = useAuth();
   const router = useRouter();
 
   async function handleSendOtp() {
@@ -77,6 +77,18 @@ export default function LoginScreen() {
           onPress={() => Alert.alert('Coming Soon', 'Apple sign-in will be available soon')}
           variant="outline"
         />
+
+        <View style={styles.guestSection}>
+          <Text
+            style={styles.guestLink}
+            onPress={() => {
+              enterGuestMode();
+              router.replace('/(tabs)' as any);
+            }}
+          >
+            Browse as Guest
+          </Text>
+        </View>
       </View>
     </Screen>
   );
@@ -129,5 +141,14 @@ const styles = StyleSheet.create({
     ...typography.bodySmall,
     color: colors.textTertiary,
     marginHorizontal: spacing.lg,
+  },
+  guestSection: {
+    alignItems: 'center' as const,
+    marginTop: spacing.xl,
+  },
+  guestLink: {
+    ...typography.body,
+    color: colors.primary,
+    textDecorationLine: 'underline' as const,
   },
 });

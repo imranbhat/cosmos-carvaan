@@ -7,8 +7,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 
 const CITIES = [
-  'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah',
-  'Fujairah', 'Umm Al Quwain', 'Al Ain', 'Riyadh', 'Jeddah',
+  'Srinagar', 'Jammu', 'Baramulla', 'Anantnag', 'Sopore',
+  'Pulwama', 'Kupwara', 'Budgam', 'Shopian', 'Bandipora',
 ];
 
 const ROLES = [
