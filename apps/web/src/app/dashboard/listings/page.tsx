@@ -81,7 +81,7 @@ export default function ListingsPage() {
          car_models!inner(name),
          listing_photos(url, thumbnail_url, is_primary)`
       )
-      .eq("user_id", user.id)
+      .eq("seller_id", user.id)
       .order("created_at", { ascending: false });
 
     if (data) {
