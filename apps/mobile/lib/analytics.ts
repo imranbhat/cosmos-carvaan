@@ -25,7 +25,8 @@ export const Analytics = {
 
   identify(userId: string, traits?: Record<string, any>) {
     if (isDev) {
-      console.log(`[Analytics] identify: ${userId}`, traits ?? '');
+      // Redact PII from dev logs
+      console.log(`[Analytics] identify: ${userId.slice(0, 8)}...`);
     }
     // TODO: Replace with posthog.identify(userId, traits)
   },

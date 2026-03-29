@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -42,6 +42,22 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminInitials, setAdminInitials] = useState("A");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setAdminEmail(user.email ?? "");
+        const meta = user.user_metadata;
+        const name = meta?.full_name ?? meta?.name ?? user.email ?? "";
+        const initials = name.includes("@")
+          ? name[0].toUpperCase()
+          : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        setAdminInitials(initials || "A");
+      }
+    });
+  }, []);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -95,11 +111,11 @@ export default function DashboardLayout({
             className="flex w-full items-center gap-3 rounded-lg p-1 hover:bg-admin-bg transition-colors"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white">
-              A
+              {adminInitials}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="truncate text-sm font-medium text-admin-text">Admin User</p>
-              <p className="truncate text-xs text-admin-text-tertiary">admin@carvaan.in</p>
+              <p className="truncate text-sm font-medium text-admin-text">{adminEmail || "Admin"}</p>
+              <p className="truncate text-xs text-admin-text-tertiary">Administrator</p>
             </div>
             <ChevronDown className={`h-4 w-4 text-admin-text-tertiary transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
           </button>
@@ -154,7 +170,7 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="relative rounded-lg p-2 text-admin-text-secondary hover:bg-admin-bg">
+            <button aria-label="Notifications" className="relative rounded-lg p-2 text-admin-text-secondary hover:bg-admin-bg">
               <Bell className="h-5 w-5" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-error" />
             </button>
@@ -162,9 +178,10 @@ export default function DashboardLayout({
               onClick={handleSignOut}
               disabled={signingOut}
               title="Sign out"
+              aria-label="Sign out"
               className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white hover:bg-primary-dark transition-colors disabled:opacity-60"
             >
-              A
+              {adminInitials}
             </button>
           </div>
         </header>

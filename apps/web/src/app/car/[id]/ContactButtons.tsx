@@ -22,6 +22,7 @@ export default function ContactButtons({
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
   const [messageSent, setMessageSent] = useState(false);
+  const [messageError, setMessageError] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
 
   const redirectToLogin = () => {
@@ -66,17 +67,21 @@ export default function ContactButtons({
     }
 
     setMessageLoading(true);
+    setMessageError(false);
     try {
-      // Try to insert a conversation/message in the messages table
-      await supabaseBrowser.from("messages").insert({
+      const { error: insertError } = await supabaseBrowser.from("messages").insert({
         listing_id: carId,
         sender_id: user.id,
         body: `Hi ${sellerName}, I'm interested in this car. Is it still available?`,
       });
-      setMessageSent(true);
+      if (insertError) {
+        console.error("Failed to send message:", insertError);
+        setMessageError(true);
+      } else {
+        setMessageSent(true);
+      }
     } catch {
-      // If the messages table doesn't exist yet, just show a confirmation
-      setMessageSent(true);
+      setMessageError(true);
     } finally {
       setMessageLoading(false);
     }
@@ -117,7 +122,11 @@ export default function ContactButtons({
         <button
           onClick={handleSendMessage}
           disabled={messageLoading || messageSent}
-          className="flex-1 bg-surface text-primary font-semibold py-3 rounded-xl border-2 border-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+          className={`flex-1 font-semibold py-3 rounded-xl border-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 ${
+            messageError
+              ? "bg-red-50 text-error border-error"
+              : "bg-surface text-primary border-primary hover:bg-primary/5"
+          }`}
         >
           {!user ? (
             <>
@@ -126,6 +135,8 @@ export default function ContactButtons({
             </>
           ) : messageSent ? (
             "Message Sent"
+          ) : messageError ? (
+            "Failed — Tap to Retry"
           ) : messageLoading ? (
             "Sending..."
           ) : (
@@ -174,7 +185,11 @@ export default function ContactButtons({
       <button
         onClick={handleSendMessage}
         disabled={messageLoading || messageSent}
-        className="w-full bg-surface text-primary font-semibold py-3 rounded-xl border-2 border-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+        className={`w-full font-semibold py-3 rounded-xl border-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 ${
+          messageError
+            ? "bg-red-50 text-error border-error"
+            : "bg-surface text-primary border-primary hover:bg-primary/5"
+        }`}
       >
         {!user ? (
           <>
@@ -183,6 +198,8 @@ export default function ContactButtons({
           </>
         ) : messageSent ? (
           "Message Sent!"
+        ) : messageError ? (
+          "Failed — Click to Retry"
         ) : messageLoading ? (
           "Sending..."
         ) : (

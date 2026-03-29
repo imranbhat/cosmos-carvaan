@@ -38,19 +38,21 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth/login");
+      router.replace("/auth/login?redirect=/dashboard");
     }
   }, [loading, user, router]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
+  // Always show loading until auth state is resolved to prevent flash of protected content
+  if (loading || !user) {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    // Not loading but no user — redirect in progress, show sign-in prompt
+    // This prevents a flash of the dashboard content
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">

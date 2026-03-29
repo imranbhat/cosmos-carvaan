@@ -10,7 +10,8 @@ import { Suspense } from "react";
 function SignupForm() {
   const { signUp } = useAuth();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") ?? "/";
+  const rawRedirect = searchParams.get("redirect") ?? "/";
+  const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/";
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");

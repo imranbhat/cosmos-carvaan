@@ -199,6 +199,14 @@ export default function SellPage() {
       });
   }, [form.model_id]);
 
+  /* ---- Cleanup object URLs on unmount ---- */
+  useEffect(() => {
+    return () => {
+      form.photos.forEach((p) => URL.revokeObjectURL(p.preview));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* ---- Helpers ---- */
   const updateForm = useCallback(
     (key: keyof FormData, value: FormData[keyof FormData]) => {
@@ -243,10 +251,14 @@ export default function SellPage() {
   }, []);
 
   const removePhoto = useCallback((id: string) => {
-    setForm((prev) => ({
-      ...prev,
-      photos: prev.photos.filter((p) => p.id !== id),
-    }));
+    setForm((prev) => {
+      const photo = prev.photos.find((p) => p.id === id);
+      if (photo) URL.revokeObjectURL(photo.preview);
+      return {
+        ...prev,
+        photos: prev.photos.filter((p) => p.id !== id),
+      };
+    });
   }, []);
 
   /* ---- Validation ---- */

@@ -38,11 +38,12 @@ export const ErrorReporter = {
     // TODO: Replace with Sentry.captureMessage(message, level)
   },
 
-  setUser(id: string, email?: string) {
+  setUser(id: string, _email?: string) {
     if (isDev) {
-      console.log(`[ErrorReporter] setUser: ${id}`, email ?? '');
+      // Redact PII from dev logs
+      console.log(`[ErrorReporter] setUser: ${id.slice(0, 8)}...`);
     }
-    // TODO: Replace with Sentry.setUser({ id, email })
+    // TODO: Replace with Sentry.setUser({ id, email: _email })
   },
 
   getLog() {

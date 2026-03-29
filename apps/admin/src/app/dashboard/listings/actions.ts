@@ -1,8 +1,45 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabase";
 
+const ALLOWED_STATUSES = ["active", "pending_review", "rejected", "sold", "expired", "draft"] as const;
+type ListingStatus = typeof ALLOWED_STATUSES[number];
+
+/** Verify the caller has a valid Supabase session. Throws if not authenticated. */
+async function requireAuth(): Promise<string> {
+  const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll();
+  const authCookie = allCookies.find((c) => c.name.includes("auth-token"));
+  if (!authCookie?.value) throw new Error("Unauthorized");
+
+  let accessToken: string | undefined;
+  try {
+    const parsed = JSON.parse(authCookie.value);
+    accessToken = parsed?.access_token;
+  } catch {
+    try {
+      const parsed = JSON.parse(Buffer.from(authCookie.value, "base64").toString());
+      accessToken = parsed?.access_token;
+    } catch {
+      throw new Error("Unauthorized");
+    }
+  }
+  if (!accessToken) throw new Error("Unauthorized");
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { global: { headers: { Authorization: `Bearer ${accessToken}` } } }
+  );
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+  return user.id;
+}
+
 export async function getListings() {
+  await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("listings")
     .select(
@@ -12,7 +49,8 @@ export async function getListings() {
        listing_photos(url, is_primary),
        profiles!listings_seller_id_fkey(full_name)`
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(200);
 
   if (error) {
     console.error("Failed to fetch listings:", error);
@@ -37,6 +75,7 @@ export async function getListings() {
 }
 
 export async function getListing(id: string) {
+  await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("listings")
     .select(
@@ -68,6 +107,10 @@ function auditLog(action: string, details: Record<string, unknown>) {
 }
 
 export async function updateListingStatus(id: string, status: string) {
+  const adminUserId = await requireAuth();
+  if (!ALLOWED_STATUSES.includes(status as ListingStatus)) {
+    return { success: false, error: `Invalid status: ${status}` };
+  }
   const { error } = await supabaseAdmin
     .from("listings")
     .update({ status })
@@ -77,11 +120,12 @@ export async function updateListingStatus(id: string, status: string) {
     console.error("Failed to update listing status:", error);
     return { success: false, error: error.message };
   }
-  auditLog("updateListingStatus", { listingId: id, status });
+  auditLog("updateListingStatus", { listingId: id, status, adminUserId });
   return { success: true };
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
+  const adminUserId = await requireAuth();
   const { error } = await supabaseAdmin
     .from("listings")
     .update({ featured })
@@ -91,11 +135,15 @@ export async function toggleFeatured(id: string, featured: boolean) {
     console.error("Failed to toggle featured:", error);
     return { success: false, error: error.message };
   }
-  auditLog("toggleFeatured", { listingId: id, featured });
+  auditLog("toggleFeatured", { listingId: id, featured, adminUserId });
   return { success: true };
 }
 
 export async function bulkUpdateStatus(ids: string[], status: string) {
+  const adminUserId = await requireAuth();
+  if (!ALLOWED_STATUSES.includes(status as ListingStatus)) {
+    return { success: false, error: `Invalid status: ${status}` };
+  }
   const { error } = await supabaseAdmin
     .from("listings")
     .update({ status })
@@ -105,11 +153,12 @@ export async function bulkUpdateStatus(ids: string[], status: string) {
     console.error("Failed to bulk update status:", error);
     return { success: false, error: error.message };
   }
-  auditLog("bulkUpdateStatus", { listingIds: ids, status, count: ids.length });
+  auditLog("bulkUpdateStatus", { listingIds: ids, status, count: ids.length, adminUserId });
   return { success: true };
 }
 
 export async function bulkToggleFeatured(ids: string[], featured: boolean) {
+  const adminUserId = await requireAuth();
   const { error } = await supabaseAdmin
     .from("listings")
     .update({ featured })
@@ -119,20 +168,22 @@ export async function bulkToggleFeatured(ids: string[], featured: boolean) {
     console.error("Failed to bulk toggle featured:", error);
     return { success: false, error: error.message };
   }
-  auditLog("bulkToggleFeatured", { listingIds: ids, featured, count: ids.length });
+  auditLog("bulkToggleFeatured", { listingIds: ids, featured, count: ids.length, adminUserId });
   return { success: true };
 }
 
 export async function exportListingsCSV() {
+  const adminUserId = await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("listings")
     .select(`
       id, year, price, status, views_count, featured, created_at, mileage, condition, color, num_owners, city,
       car_makes!inner(name),
       car_models!inner(name),
-      profiles!listings_seller_id_fkey(full_name, phone)
+      profiles!listings_seller_id_fkey(full_name)
     `)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(1000);
 
   if (error) {
     console.error("Failed to export listings CSV:", error);
@@ -143,7 +194,6 @@ export async function exportListingsCSV() {
     ID: item.id,
     Car: `${item.year} ${item.car_makes?.name ?? ""} ${item.car_models?.name ?? ""}`,
     Seller: item.profiles?.full_name ?? "",
-    Phone: item.profiles?.phone ?? "",
     Price: item.price,
     Status: item.status,
     Views: item.views_count ?? 0,
@@ -163,6 +213,6 @@ export async function exportListingsCSV() {
     )
     .join("\n");
 
-  auditLog("exportListingsCSV", { rowCount: rows.length });
+  auditLog("exportListingsCSV", { rowCount: rows.length, adminUserId });
   return `${headers}\n${csv}`;
 }

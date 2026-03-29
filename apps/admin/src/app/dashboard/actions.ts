@@ -1,8 +1,42 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabase";
 
+/** Verify the caller has a valid Supabase session. Throws if not authenticated. */
+async function requireAuth(): Promise<string> {
+  const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll();
+  const authCookie = allCookies.find((c) => c.name.includes("auth-token"));
+  if (!authCookie?.value) throw new Error("Unauthorized");
+
+  let accessToken: string | undefined;
+  try {
+    const parsed = JSON.parse(authCookie.value);
+    accessToken = parsed?.access_token;
+  } catch {
+    try {
+      const parsed = JSON.parse(Buffer.from(authCookie.value, "base64").toString());
+      accessToken = parsed?.access_token;
+    } catch {
+      throw new Error("Unauthorized");
+    }
+  }
+  if (!accessToken) throw new Error("Unauthorized");
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { global: { headers: { Authorization: `Bearer ${accessToken}` } } }
+  );
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+  return user.id;
+}
+
 export async function getDashboardStats() {
+  await requireAuth();
   const [listingsResult, usersResult, pendingResult, activeListingsResult] = await Promise.all([
     supabaseAdmin.from("listings").select("id", { count: "exact", head: true }),
     supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
@@ -19,6 +53,7 @@ export async function getDashboardStats() {
 }
 
 export async function getRecentListings() {
+  await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("listings")
     .select(`
@@ -53,10 +88,12 @@ export async function getRecentListings() {
 }
 
 export async function getUsers(search?: string, role?: string) {
+  await requireAuth();
   let query = supabaseAdmin
     .from("profiles")
     .select("id, full_name, phone, email, avatar_url, city, role, rating_avg, rating_count, created_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(200);
 
   if (role && role !== "all") {
     query = query.eq("role", role);
@@ -72,17 +109,19 @@ export async function getUsers(search?: string, role?: string) {
     return [];
   }
 
-  // Also get listing counts per user
+  // Get listing counts per user in a single query
   const userIds = (data ?? []).map(u => u.id);
-  const { data: listingCounts } = await supabaseAdmin
-    .from("listings")
-    .select("seller_id")
-    .in("seller_id", userIds);
-
   const countMap: Record<string, number> = {};
-  (listingCounts ?? []).forEach((l: any) => {
-    countMap[l.seller_id] = (countMap[l.seller_id] || 0) + 1;
-  });
+  if (userIds.length > 0) {
+    const { data: listingCounts } = await supabaseAdmin
+      .from("listings")
+      .select("seller_id", { count: "exact" })
+      .in("seller_id", userIds);
+
+    (listingCounts ?? []).forEach((l: any) => {
+      countMap[l.seller_id] = (countMap[l.seller_id] || 0) + 1;
+    });
+  }
 
   return (data ?? []).map((u: any) => ({
     id: u.id,
@@ -99,6 +138,7 @@ export async function getUsers(search?: string, role?: string) {
 }
 
 export async function getListingsActivity() {
+  await requireAuth();
   // Get listing counts by date for the last 30 days
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -137,6 +177,7 @@ export async function saveSettings(settings: {
   premiumListingFee: string;
   notifications: Record<string, boolean>;
 }) {
+  await requireAuth();
   const { error } = await supabaseAdmin
     .from("platform_settings")
     .upsert({
@@ -146,13 +187,14 @@ export async function saveSettings(settings: {
     }, { onConflict: 'id' });
 
   if (error) {
-    console.error("Failed to save settings (table may not exist):", error);
-    return { success: true, note: "Settings saved locally only - platform_settings table not found" };
+    console.error("Failed to save settings:", error);
+    return { success: false, error: "Failed to save settings. Please try again." };
   }
   return { success: true };
 }
 
 export async function getSettings() {
+  await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("platform_settings")
     .select("settings")
@@ -171,6 +213,7 @@ export async function getSettings() {
 }
 
 export async function getMessages() {
+  await requireAuth();
   const { data, error } = await supabaseAdmin
     .from("conversations")
     .select(`
