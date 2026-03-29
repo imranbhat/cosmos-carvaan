@@ -1,35 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createSupabaseServer } from "@/lib/supabase-server";
 
 /** Verify the caller has a valid Supabase session. Throws if not authenticated. */
 async function requireAuth(): Promise<string> {
-  const cookieStore = await cookies();
-  const allCookies = cookieStore.getAll();
-  const authCookie = allCookies.find((c) => c.name.includes("auth-token"));
-  if (!authCookie?.value) throw new Error("Unauthorized");
-
-  let accessToken: string | undefined;
-  try {
-    const parsed = JSON.parse(authCookie.value);
-    accessToken = parsed?.access_token;
-  } catch {
-    try {
-      const parsed = JSON.parse(Buffer.from(authCookie.value, "base64").toString());
-      accessToken = parsed?.access_token;
-    } catch {
-      throw new Error("Unauthorized");
-    }
-  }
-  if (!accessToken) throw new Error("Unauthorized");
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: `Bearer ${accessToken}` } } }
-  );
+  const supabase = await createSupabaseServer();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) throw new Error("Unauthorized");
   return user.id;
