@@ -306,7 +306,7 @@ export default function SellPage() {
       const { data: listing, error: listingError } = await supabaseBrowser
         .from("listings")
         .insert({
-          user_id: user.id,
+          seller_id: user.id,
           make_id: form.make_id,
           model_id: form.model_id,
           variant_id: form.variant_id || null,
@@ -314,7 +314,7 @@ export default function SellPage() {
           mileage: parseInt(form.mileage.replace(/,/g, ""), 10),
           condition: form.condition.toLowerCase(),
           color: form.color,
-          owners: parseInt(form.owners, 10),
+          num_owners: parseInt(form.owners, 10),
           description: form.description || null,
           price: parseInt(form.price.replace(/,/g, ""), 10),
           negotiable: form.negotiable,
@@ -349,7 +349,7 @@ export default function SellPage() {
         photoInserts.push({
           listing_id: listing.id,
           url: publicUrl,
-          display_order: i,
+          position: i,
           is_primary: i === 0,
         });
       }
