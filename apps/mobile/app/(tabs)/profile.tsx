@@ -11,7 +11,7 @@ const MENU_SECTIONS = [
     items: [
       { label: 'My Listings', icon: '🚗', route: '/profile/my-listings', desc: 'Manage your cars' },
       { label: 'Saved Cars', icon: '❤️', route: '/profile/saved-cars', desc: 'Your favorites' },
-      { label: 'Saved Searches', icon: '🔔', route: null, desc: 'Price alerts' },
+      { label: 'Saved Searches', icon: '🔔', route: '/profile/saved-searches', desc: 'Price alerts' },
       { label: 'Recently Viewed', icon: '👁️', route: '/profile/recently-viewed', desc: 'Browse history' },
     ],
   },
@@ -19,7 +19,7 @@ const MENU_SECTIONS = [
     items: [
       { label: 'Edit Profile', icon: '✏️', route: '/profile/edit', desc: 'Update your info' },
       { label: 'Settings', icon: '⚙️', route: '/profile/settings', desc: 'App preferences' },
-      { label: 'Help & Support', icon: '💬', route: null, desc: 'Get in touch' },
+      { label: 'Help & Support', icon: '💬', route: '/profile/help', desc: 'Get in touch' },
     ],
   },
 ];

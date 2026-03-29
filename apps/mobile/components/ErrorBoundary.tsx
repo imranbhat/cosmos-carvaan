@@ -1,6 +1,6 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { captureException } from '@/lib/errorReporting';
+import { ErrorReporter } from '@/lib/errorReporting';
 import { colors, spacing, typography } from '@/constants/theme';
 
 interface Props {
@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    captureException(error, {
+    ErrorReporter.captureException(error, {
       componentStack: info.componentStack ?? 'unknown',
     });
   }

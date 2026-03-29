@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { formatPrice } from '@/lib/format';
 import { colors, borderRadius, spacing, typography, shadows } from '@/constants/theme';
 
-const TABS = ['all', 'active', 'pending', 'sold'] as const;
+const TABS = ['all', 'active', 'pending', 'sold', 'rejected'] as const;
 
 export default function MyListingsScreen() {
   const router = useRouter();

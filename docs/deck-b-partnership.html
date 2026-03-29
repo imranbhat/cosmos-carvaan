@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carvaan — Partnership Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --walnut: #6B3A2A;
+    --walnut-deep: #3D1F14;
+    --walnut-rich: #523022;
+    --gold: #D4A017;
+    --gold-warm: #E2B84B;
+    --gold-pale: #F5E6B8;
+    --cream: #FDF8F3;
+    --cream-warm: #FAF0E4;
+    --ivory: #FFFCF7;
+    --surface: #FFFFFF;
+    --text: #1C1210;
+    --text-mid: #5C4033;
+    --text-light: #9C8578;
+    --border: #E8DDD5;
+    --green: #3A7D44;
+    --green-soft: #E8F5E9;
+    --red-soft: #C62828;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--walnut-deep);
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 56px 80px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.98);
+    transition: opacity 0.65s ease, transform 0.65s ease, visibility 0s 0.65s;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition: opacity 0.65s ease, transform 0.65s ease, visibility 0s 0s;
+  }
+
+  .slide.active .anim { opacity: 1; transform: translateY(0); }
+  .anim {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .anim:nth-child(1) { transition-delay: 0.1s; }
+  .anim:nth-child(2) { transition-delay: 0.22s; }
+  .anim:nth-child(3) { transition-delay: 0.34s; }
+  .anim:nth-child(4) { transition-delay: 0.46s; }
+  .anim:nth-child(5) { transition-delay: 0.58s; }
+  .anim:nth-child(6) { transition-delay: 0.7s; }
+  .anim:nth-child(7) { transition-delay: 0.82s; }
+
+  /* Backgrounds */
+  .bg-warm {
+    background: linear-gradient(150deg, var(--walnut-deep) 0%, var(--walnut-rich) 40%, var(--walnut) 100%);
+    color: var(--cream);
+  }
+  .bg-ivory { background: var(--ivory); color: var(--text); }
+  .bg-cream { background: linear-gradient(180deg, var(--cream) 0%, var(--cream-warm) 100%); color: var(--text); }
+  .bg-white { background: var(--surface); color: var(--text); }
+  .bg-deep {
+    background: linear-gradient(160deg, #120a06 0%, var(--walnut-deep) 50%, #1e1009 100%);
+    color: var(--cream);
+  }
+  .bg-gold-soft {
+    background: linear-gradient(160deg, #FFF9EB, #FDF0D0, #FFF6E0);
+    color: var(--text);
+  }
+
+  /* Noise texture */
+  .slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+  .bg-warm::after, .bg-deep::after { opacity: 0.05; }
+
+  /* Decorative paisley-inspired corner */
+  .corner-motif {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+  .corner-motif.tr { top: 0; right: 0; }
+  .corner-motif.bl { bottom: 0; left: 0; transform: rotate(180deg); }
+  .bg-warm .corner-motif, .bg-deep .corner-motif { opacity: 0.07; }
+
+  /* Typography */
+  h1, h2, h3, .serif {
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.45;
+  }
+  .bg-warm .tag, .bg-deep .tag { color: var(--gold-warm); opacity: 0.85; }
+
+  .accent-bar {
+    width: 48px;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  .slide-num {
+    position: absolute;
+    bottom: 28px;
+    right: 36px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    opacity: 0.3;
+  }
+  .brand-mark {
+    position: absolute;
+    bottom: 28px;
+    left: 36px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.25;
+  }
+
+  /* Two column */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+  .split.narrow { gap: 36px; }
+
+  /* Cards */
+  .cards { display: grid; gap: 16px; }
+  .cards.c2 { grid-template-columns: 1fr 1fr; }
+  .cards.c3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cards.c4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .cards.c5 { grid-template-columns: repeat(5, 1fr); }
+
+  .card {
+    border-radius: 14px;
+    padding: 24px 22px;
+    transition: transform 0.25s ease;
+  }
+  .card:hover { transform: translateY(-2px); }
+
+  .card-warm {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-light {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 8px rgba(107,58,42,0.05);
+  }
+  .card-gold {
+    background: rgba(212,160,23,0.06);
+    border: 1px solid rgba(212,160,23,0.15);
+  }
+
+  .card .icon { font-size: 26px; margin-bottom: 12px; }
+  .card h4 { font-family: 'Outfit'; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .card p { font-size: 13px; line-height: 1.6; opacity: 0.7; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table th {
+    text-align: left;
+    padding: 11px 14px;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+  table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .bg-warm table th, .bg-deep table th { border-color: rgba(255,255,255,0.12); color: var(--gold-warm); }
+  .bg-warm table td, .bg-deep table td { border-color: rgba(255,255,255,0.06); }
+
+  /* Comparison table special */
+  .compare-table td:first-child { font-weight: 600; color: var(--walnut); min-width: 110px; }
+  .compare-table td:nth-child(2) { color: var(--red-soft); opacity: 0.7; }
+  .compare-table td:nth-child(3) { color: var(--green); font-weight: 600; }
+
+  /* Bullet list */
+  .blist { list-style: none; }
+  .blist li {
+    position: relative;
+    padding: 7px 0 7px 22px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .blist li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .blist.sm li { font-size: 13.5px; padding: 5px 0 5px 20px; }
+  .blist.sm li::before { top: 12px; width: 6px; height: 6px; }
+
+  /* Step flow */
+  .flow { display: flex; gap: 20px; }
+  .flow-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .flow-step::after {
+    content: '\2192';
+    position: absolute;
+    right: -16px;
+    top: 22px;
+    font-size: 20px;
+    color: var(--gold);
+    opacity: 0.5;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .flow-step h4 {
+    font-family: 'Outfit';
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .flow-step p {
+    font-size: 12px;
+    opacity: 0.65;
+    line-height: 1.5;
+    max-width: 180px;
+    margin: 0 auto;
+  }
+
+  /* Stats */
+  .stat-row { display: flex; gap: 32px; }
+  .stat-block { flex: 1; text-align: center; padding: 16px 0; }
+  .stat-val {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .bg-ivory .stat-val, .bg-cream .stat-val, .bg-gold-soft .stat-val { color: var(--walnut); }
+  .stat-lbl {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+    opacity: 0.55;
+  }
+
+  /* Tier cards */
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .tier {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .tier:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(107,58,42,0.1); }
+  .tier.highlight {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, #FFFDF7, #FFF);
+    box-shadow: 0 4px 20px rgba(212,160,23,0.1);
+  }
+  .tier.highlight::before {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    padding: 4px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .tier h4 { font-family: 'Outfit'; font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--walnut); }
+  .tier .tier-detail { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-bottom: 16px; }
+  .tier .tier-features { list-style: none; text-align: left; }
+  .tier .tier-features li {
+    font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tier .tier-features li::before {
+    content: '\2713';
+    color: var(--green);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* Cover */
+  .cover-brand {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 80px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--gold-warm) 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .cover-tagline {
+    font-size: 21px;
+    font-weight: 300;
+    opacity: 0.7;
+    letter-spacing: 0.01em;
+    margin-bottom: 40px;
+  }
+  .cover-info {
+    font-size: 13px;
+    opacity: 0.35;
+    letter-spacing: 0.08em;
+  }
+
+  /* Benefit badge */
+  .benefit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+  }
+  .benefit .b-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .benefit h5 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .benefit p { font-size: 12px; opacity: 0.6; line-height: 1.5; }
+
+  /* Founding partner banner */
+  .founder-banner {
+    background: linear-gradient(135deg, rgba(212,160,23,0.08), rgba(212,160,23,0.15));
+    border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-top: 28px;
+  }
+  .founder-banner h4 {
+    font-family: 'Outfit';
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  /* CTA final */
+  .final-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 560px;
+  }
+  .final-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .final-step .fs-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .final-step .fs-text h4 { font-family: 'Outfit'; font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+  .final-step .fs-text p { font-size: 13px; opacity: 0.55; }
+
+  /* Commitment list */
+  .commit-list { list-style: none; }
+  .commit-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .commit-list li .c-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  /* Progress bar */
+  .nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-warm));
+    z-index: 100;
+    transition: width 0.5s ease;
+  }
+
+  .nav-tip {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.2;
+    color: var(--cream);
+    z-index: 50;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  .nav-tip.gone { opacity: 0; }
+
+  /* Helper */
+  .gold-text { color: var(--gold); }
+  .walnut-text { color: var(--walnut); }
+  em { font-style: italic; }
+</style>
+</head>
+<body>
+<div class="nav-bar" id="bar"></div>
+<div class="nav-tip" id="tip">Use arrow keys or click to navigate</div>
+
+<div class="deck" id="deck">
+
+  <!-- ═══ SLIDE 1: COVER ═══ -->
+  <div class="slide bg-deep active" data-slide="0">
+    <div class="corner-motif tr"><svg viewBox="0 0 240 240" fill="none" stroke="rgba(212,160,23,0.4)" stroke-width="0.8"><ellipse cx="200" cy="40" rx="80" ry="30" /><ellipse cx="200" cy="40" rx="60" ry="22" /><ellipse cx="200" cy="40" rx="40" ry="14" /><line x1="120" y1="40" x2="200" y2="120" /><circle cx="200" cy="120" r="6" fill="rgba(212,160,23,0.2)"/></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div class="anim tag">Partnership Proposal</div>
+      <h1 class="anim cover-brand">Carvaan</h1>
+      <p class="anim cover-tagline">Kashmir's trusted used-car marketplace</p>
+      <p class="anim cover-info">March–April 2026</p>
+      <p class="anim cover-info" style="margin-top:6px;">Presented by Zeeshan / CosmicPulse</p>
+    </div>
+    <div class="slide-num">01 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 2: THE CHALLENGE ═══ -->
+  <div class="slide bg-cream" data-slide="1">
+    <div class="anim tag">The Challenge</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:40px;max-width:720px;margin-bottom:32px;">The challenges you face <em>every single day</em></h2>
+    <div class="anim split narrow">
+      <ul class="blist">
+        <li>Great cars — but only walk-in traffic sees them</li>
+        <li>Social media ads are hit-or-miss, hard to manage</li>
+        <li>Buyers start their search online — you're invisible</li>
+      </ul>
+      <ul class="blist">
+        <li>Staff spends hours answering the same questions on calls</li>
+        <li>Inquiries scattered across WhatsApp, calls, walk-ins</li>
+        <li style="font-weight:700;color:var(--walnut);">Competitors who go digital first will take your customers</li>
+      </ul>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">02 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 3: WHAT IS CARVAAN ═══ -->
+  <div class="slide bg-warm" data-slide="2">
+    <div class="anim tag">The Solution</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:40px;max-width:700px;margin-bottom:14px;">Your digital showroom — open 24/7</h2>
+    <p class="anim" style="font-size:16px;opacity:0.65;max-width:560px;margin-bottom:36px;">Kashmir's first dedicated used-car marketplace. Buyers search, browse, and connect with sellers like you.</p>
+    <div class="anim cards c3">
+      <div class="card card-warm" style="text-align:center;padding:32px 20px;">
+        <div class="icon">&#128241;</div>
+        <h4>Mobile App</h4>
+        <p>iOS & Android — where most buyers discover your cars</p>
+      </div>
+      <div class="card card-warm" style="text-align:center;padding:32px 20px;">
+        <div class="icon">&#127760;</div>
+        <h4>Website</h4>
+        <p>Shareable links, Google-searchable, no download needed</p>
+      </div>
+      <div class="card card-warm" style="text-align:center;padding:32px 20px;">
+        <div class="icon">&#9881;&#65039;</div>
+        <h4>Admin Panel</h4>
+        <p>Quality control and listing management by our team</p>
+      </div>
+    </div>
+    <div class="slide-num">03 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 4: HOW IT WORKS ═══ -->
+  <div class="slide bg-ivory" data-slide="3">
+    <div class="anim tag">How It Works</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:40px;">Five simple steps. Zero tech hassle.</h2>
+    <div class="anim flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <h4>Share Inventory</h4>
+        <p>Send car details via WhatsApp, email, or we visit your lot</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <h4>We List Them</h4>
+        <p>Professional listing with photos, specs, and your price</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <h4>Buyers Find You</h4>
+        <p>App search, Google, featured placement, WhatsApp links</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <h4>Get Leads</h4>
+        <p>Qualified buyers message you through in-app chat</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <h4>Close Deals</h4>
+        <p>Meet the buyer, negotiate, sell — your way</p>
+      </div>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">04 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 5: WHAT YOU GET ═══ -->
+  <div class="slide bg-deep" data-slide="4">
+    <div class="anim tag">Partner Benefits</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:32px;">What you get as a partner</h2>
+    <div class="anim benefit-grid">
+      <div class="benefit">
+        <span class="b-icon">&#127758;</span>
+        <div><h5>Digital Presence</h5><p>Your cars visible to thousands of app users and web visitors</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#128247;</span>
+        <div><h5>Professional Listings</h5><p>Beautiful car pages with gallery, specs, and your branding</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#127919;</span>
+        <div><h5>Qualified Leads</h5><p>Pre-informed buyers who've already seen your car details and price</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#128172;</span>
+        <div><h5>Real-Time Chat</h5><p>Built-in messaging — no sharing personal phone numbers</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#11088;</span>
+        <div><h5>Featured Placement</h5><p>Premium homepage visibility for your best cars</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#128200;</span>
+        <div><h5>Analytics</h5><p>Track views, saves, and inquiries per listing</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#128100;</span>
+        <div><h5>Seller Profile</h5><p>Your business name, rating, and verified badge</p></div>
+      </div>
+      <div class="benefit">
+        <span class="b-icon">&#9989;</span>
+        <div><h5>Zero Tech Work</h5><p>We handle everything — listing, photos, platform, updates</p></div>
+      </div>
+    </div>
+    <div class="slide-num">05 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 6: PLATFORM FEATURES ═══ -->
+  <div class="slide bg-cream" data-slide="5">
+    <div class="anim tag">Platform Features</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:12px;">Features your buyers will love</h2>
+    <p class="anim" style="font-size:15px;color:var(--text-mid);margin-bottom:28px;">Every feature moves a buyer from "just looking" to "I want this car" faster.</p>
+    <div class="anim split narrow">
+      <div>
+        <h4 style="font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--walnut);margin-bottom:14px;">Mobile App</h4>
+        <ul class="blist sm">
+          <li>Browse cars with rich photos and detailed specs</li>
+          <li>Search by make, model, year, price, fuel type, city</li>
+          <li>Save favorites and get price drop alerts</li>
+          <li>Chat with sellers without sharing phone numbers</li>
+          <li>View similar cars and compare options</li>
+          <li>Quick, secure phone-OTP login</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--walnut);margin-bottom:14px;">Website</h4>
+        <ul class="blist sm">
+          <li>Google-searchable — buyers find you via search</li>
+          <li>Shareable car links for WhatsApp marketing</li>
+          <li>Works on any device — no app download needed</li>
+          <li>Full filter and search capabilities</li>
+        </ul>
+        <div style="margin-top:18px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+          <p style="font-size:12px;color:var(--text-mid);line-height:1.6;">
+            <strong style="color:var(--walnut);">Live now:</strong><br>
+            Web &rarr; carvaan-web.vercel.app<br>
+            Admin &rarr; carvaan-admin-ten.vercel.app
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">06 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 7: COMPARISON ═══ -->
+  <div class="slide bg-warm" data-slide="6">
+    <div class="anim tag">Why Carvaan</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:32px;">Why Carvaan, not OLX or CarDekho?</h2>
+    <div class="anim" style="max-width:850px;">
+      <table class="compare-table" style="font-size:14px;">
+        <thead>
+          <tr><th style="width:120px;">Factor</th><th>National Platforms</th><th>Carvaan</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Focus</td><td>All of India, all categories</td><td>Kashmir's car market only</td></tr>
+          <tr><td>Cities</td><td>Generic coverage</td><td>Srinagar, Jammu, Baramulla + 7 more</td></tr>
+          <tr><td>Car Data</td><td>Generic database</td><td>Indian market makes, models, variants</td></tr>
+          <tr><td>Design</td><td>One-size-fits-all</td><td>Kashmir-inspired, culturally familiar</td></tr>
+          <tr><td>Visibility</td><td>Your car is 1 of 10,000</td><td>Your car gets real visibility</td></tr>
+          <tr><td>Support</td><td>Faceless call center</td><td>Local, personal, responsive</td></tr>
+          <tr><td>Trust</td><td>Anonymous sellers</td><td>Known, reputed local dealers</td></tr>
+          <tr><td>Revenue</td><td>They take a cut of everything</td><td>Partnership-friendly terms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-num">07 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 8: PARTNERSHIP TIERS ═══ -->
+  <div class="slide bg-ivory" data-slide="7">
+    <div class="anim tag">Partnership Tiers</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:36px;margin-bottom:36px;">Choose your level of partnership</h2>
+    <div class="anim tier-grid" style="max-width:880px;">
+      <div class="tier">
+        <h4>Starter</h4>
+        <div class="tier-detail">Perfect for getting started</div>
+        <ul class="tier-features">
+          <li>Up to 20 car listings</li>
+          <li>2 featured slots</li>
+          <li>WhatsApp support</li>
+          <li>Monthly performance report</li>
+        </ul>
+      </div>
+      <div class="tier highlight">
+        <h4>Professional</h4>
+        <div class="tier-detail">For serious growth</div>
+        <ul class="tier-features">
+          <li>Up to 50 car listings</li>
+          <li>5 featured slots</li>
+          <li>Priority support + analytics</li>
+          <li>Seller profile badge</li>
+          <li>Weekly performance report</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <h4>Enterprise</h4>
+        <div class="tier-detail">Maximum visibility</div>
+        <ul class="tier-features">
+          <li>Unlimited listings</li>
+          <li>10 featured + homepage banner</li>
+          <li>Dedicated account manager</li>
+          <li>Custom analytics dashboard</li>
+          <li>Priority roadmap input</li>
+        </ul>
+      </div>
+    </div>
+    <div class="anim founder-banner" style="max-width:880px;">
+      <h4>Founding Partner Offer</h4>
+      <p style="font-size:14px;color:var(--text-mid);line-height:1.6;">First 3 partners get <strong>3 months completely free</strong> + lifetime preferred rates locked in before public launch.</p>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">08 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 9: ROADMAP ═══ -->
+  <div class="slide bg-deep" data-slide="8">
+    <div class="anim tag">What's Coming</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:32px;">Features that make your partnership even more valuable</h2>
+    <div class="anim split narrow">
+      <div>
+        <h4 style="color:var(--gold-warm);font-size:12px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;">Coming Soon &mdash; Q2 2026</h4>
+        <ul class="blist sm">
+          <li>Push notifications for new listings</li>
+          <li>Inspection badges — certified quality markers</li>
+          <li>Buyer reviews — your reputation goes digital</li>
+          <li>In-app offer system</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--gold-warm);font-size:12px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;">Later This Year &mdash; Q3–Q4 2026</h4>
+        <ul class="blist sm">
+          <li>Dealer dashboard — manage your own listings</li>
+          <li>EMI calculator for buyers</li>
+          <li>Video walkaround uploads</li>
+          <li>AI-powered pricing suggestions</li>
+          <li>Finance partner integration</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-num">09 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 10: NUMBERS ═══ -->
+  <div class="slide bg-gold-soft" data-slide="9">
+    <div class="anim tag" style="color:var(--walnut);opacity:0.5;">The Numbers</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:40px;">The numbers that matter <em>for you</em></h2>
+    <div class="anim" style="max-width:860px;">
+      <table>
+        <thead><tr><th style="border-color:var(--walnut);color:var(--walnut);">Metric</th><th style="border-color:var(--walnut);color:var(--walnut);">What It Means for You</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:700;font-size:16px;color:var(--walnut);">70%+ smartphone penetration</td><td>Your buyers are already on their phones</td></tr>
+          <tr><td style="font-weight:700;font-size:16px;color:var(--walnut);">95% deals are offline</td><td>Massive untapped digital demand</td></tr>
+          <tr><td style="font-weight:700;font-size:16px;color:var(--walnut);">15+ days to sell offline</td><td>Digital listings can cut this to days</td></tr>
+          <tr><td style="font-weight:700;font-size:16px;color:var(--walnut);">50,000+ transactions/year</td><td>Even 1% = 500 deals through the platform</td></tr>
+          <tr><td style="font-weight:700;font-size:16px;color:var(--walnut);">INR 0 tech investment</td><td>All the upside, none of the risk</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">10 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 11: OUR COMMITMENT ═══ -->
+  <div class="slide bg-cream" data-slide="10">
+    <div class="anim tag">Our Commitment</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:38px;margin-bottom:32px;">What we promise you</h2>
+    <div class="anim" style="max-width:640px;">
+      <ul class="commit-list">
+        <li><span class="c-icon">&#10003;</span>Your listings go live within 48 hours of sharing inventory</li>
+        <li><span class="c-icon">&#10003;</span>Dedicated WhatsApp line for listing updates and support</li>
+        <li><span class="c-icon">&#10003;</span>Monthly performance report — views, inquiries, conversions</li>
+        <li><span class="c-icon">&#10003;</span>Your feedback directly shapes our product roadmap</li>
+        <li><span class="c-icon">&#10003;</span>We never compete with you — we're a platform, not a dealer</li>
+        <li><span class="c-icon">&#10003;</span>Your customer relationships remain yours — always</li>
+      </ul>
+    </div>
+    <div class="slide-num" style="color:var(--text-light);">11 / 13</div>
+    <div class="brand-mark" style="color:var(--text-light);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 12: FOUNDING PARTNER ═══ -->
+  <div class="slide bg-warm" data-slide="11">
+    <div class="anim tag">Exclusive Invitation</div>
+    <div class="anim accent-bar"></div>
+    <h2 class="anim" style="font-size:40px;margin-bottom:14px;">Become a founding partner</h2>
+    <p class="anim" style="font-size:16px;opacity:0.65;max-width:560px;margin-bottom:32px;">We're inviting 3–5 established dealers in Kashmir to be Carvaan's founding partners.</p>
+    <div class="anim cards c2" style="max-width:700px;margin-bottom:24px;">
+      <div class="card card-warm">
+        <div class="icon">&#127873;</div>
+        <h4>3 Months Free</h4>
+        <p>Full platform access at zero cost to prove the value</p>
+      </div>
+      <div class="card card-warm">
+        <div class="icon">&#128274;</div>
+        <h4>Lifetime Preferred Rates</h4>
+        <p>Locked in before public launch pricing</p>
+      </div>
+      <div class="card card-warm">
+        <div class="icon">&#127942;</div>
+        <h4>Trusted Partners Badge</h4>
+        <p>Your logo on our homepage and app</p>
+      </div>
+      <div class="card card-warm">
+        <div class="icon">&#128161;</div>
+        <h4>Priority Roadmap Input</h4>
+        <p>Shape the features that matter to your business</p>
+      </div>
+    </div>
+    <p class="anim" style="font-size:15px;opacity:0.7;font-style:italic;">This is a limited, time-sensitive opportunity. Partners who join now get the best terms and the most visibility.</p>
+    <div class="slide-num">12 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 13: NEXT STEPS / CTA ═══ -->
+  <div class="slide bg-deep" data-slide="12">
+    <div class="corner-motif tr"><svg viewBox="0 0 240 240" fill="none" stroke="rgba(212,160,23,0.4)" stroke-width="0.8"><ellipse cx="200" cy="40" rx="80" ry="30" /><ellipse cx="200" cy="40" rx="60" ry="22" /><ellipse cx="200" cy="40" rx="40" ry="14" /></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+      <div class="anim tag">Let's Begin</div>
+      <div class="anim accent-bar" style="margin-left:auto;margin-right:auto;"></div>
+      <h2 class="anim" style="font-size:44px;max-width:650px;margin-bottom:44px;">No contracts. No commitments.<br><em>Just results.</em></h2>
+      <div class="anim final-steps" style="text-align:left;margin-bottom:44px;">
+        <div class="final-step">
+          <span class="fs-num">1</span>
+          <div class="fs-text"><h4>Today</h4><p>We show you the live app on your phone — 10 minutes</p></div>
+        </div>
+        <div class="final-step">
+          <span class="fs-num">2</span>
+          <div class="fs-text"><h4>This Week</h4><p>Share 5–10 of your cars — we list them for free</p></div>
+        </div>
+        <div class="final-step">
+          <span class="fs-num">3</span>
+          <div class="fs-text"><h4>Next Week</h4><p>You see real buyer inquiries coming in</p></div>
+        </div>
+        <div class="final-step">
+          <span class="fs-num">4</span>
+          <div class="fs-text"><h4>Month 1</h4><p>Full inventory onboarded, featured placement active</p></div>
+        </div>
+        <div class="final-step">
+          <span class="fs-num">5</span>
+          <div class="fs-text"><h4>Month 3</h4><p>Review results, choose your ongoing tier</p></div>
+        </div>
+      </div>
+      <p class="anim" style="font-family:'Libre Baskerville',serif;font-size:22px;font-style:italic;opacity:0.7;max-width:500px;">Let's put your cars in front of every buyer in Kashmir.</p>
+      <p class="anim cover-info" style="margin-top:28px;">Zeeshan / CosmicPulse &nbsp;&bull;&nbsp; zeeshan@cosmicpulse.com</p>
+    </div>
+    <div class="slide-num">13 / 13</div>
+    <div class="brand-mark">Carvaan</div>
+  </div>
+
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const bar = document.getElementById('bar');
+  const tip = document.getElementById('tip');
+  let cur = 0;
+  const tot = slides.length;
+
+  function go(n) {
+    if (n < 0 || n >= tot) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    bar.style.width = ((cur + 1) / tot * 100) + '%';
+    if (cur > 0) tip.classList.add('gone');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(cur + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(cur - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End') { e.preventDefault(); go(tot - 1); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.clientX > window.innerWidth / 2) go(cur + 1);
+    else go(cur - 1);
+  });
+
+  let tx = 0;
+  document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const d = e.changedTouches[0].clientX - tx;
+    if (Math.abs(d) > 50) { d < 0 ? go(cur + 1) : go(cur - 1); }
+  });
+
+  bar.style.width = (1 / tot * 100) + '%';
+</script>
+</body>
+</html>

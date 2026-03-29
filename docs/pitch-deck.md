@@ -18,8 +18,8 @@
 **Carvaan**
 *The trusted used-car marketplace platform — built for Kashmir*
 
-Presented by: [Your Name / Cosmos]
-Date: [Month 2026]
+Presented by: [Zeeshan / CosmicPulse]
+Date: [Mar April 2026]
 
 ---
 
@@ -208,7 +208,6 @@ Production-grade schema with 7 migration files:
 - Advanced analytics dashboard for sellers
 
 ### Phase 4 — Market Expansion (Q4 2026)
-- Multi-language support (Urdu, Hindi, Kashmiri)
 - Video walkaround uploads for listings
 - AI-powered price suggestions based on market data
 - Dealer CRM features (lead management, follow-ups)
@@ -422,7 +421,6 @@ Features that will make your partnership even more valuable:
 - Dealer dashboard — manage your own listings directly
 - EMI calculator — help buyers see monthly payment options
 - Video walkarounds — showcase cars with video tours
-- Multi-language support (Urdu, Hindi, Kashmiri)
 - AI-powered pricing — know the right price for every car
 - Finance partner integration — connect buyers with lenders
 

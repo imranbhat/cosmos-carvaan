@@ -6,8 +6,10 @@ type Status =
   | "expired"
   | "rejected";
 
+export type { Status };
+
 interface StatusBadgeProps {
-  status: Status;
+  status: Status | string;
 }
 
 const statusConfig: Record<
@@ -53,7 +55,7 @@ const statusConfig: Record<
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const config = statusConfig[status as Status] ?? statusConfig.draft;
 
   return (
     <span

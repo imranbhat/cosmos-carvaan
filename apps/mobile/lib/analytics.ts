@@ -1,48 +1,60 @@
-/**
- * Analytics utility.
- *
- * For production, integrate PostHog or Expo Analytics:
- *   npm install posthog-react-native
- *
- * This module provides a consistent API so all tracking calls
- * can be upgraded to a real provider in one place.
- */
+// Analytics service - logs in development, ready for PostHog in production
+const isDev = __DEV__;
 
-type EventProperties = Record<string, string | number | boolean | null>;
-
-export function trackEvent(event: string, properties?: EventProperties) {
-  if (__DEV__) {
-    console.log('[Analytics]', event, properties);
-  }
-  // TODO: posthog.capture(event, properties);
+interface AnalyticsEvent {
+  name: string;
+  properties?: Record<string, any>;
+  timestamp: string;
 }
 
-export function trackScreen(screenName: string) {
-  if (__DEV__) {
-    console.log('[Screen]', screenName);
-  }
-  // TODO: posthog.screen(screenName);
-}
+const eventQueue: AnalyticsEvent[] = [];
 
-export function identifyUser(userId: string, traits?: EventProperties) {
-  if (__DEV__) {
-    console.log('[Identify]', userId, traits);
-  }
-  // TODO: posthog.identify(userId, traits);
-}
+export const Analytics = {
+  track(event: string, properties?: Record<string, any>) {
+    const entry = { name: event, properties, timestamp: new Date().toISOString() };
+    eventQueue.push(entry);
+    if (isDev) {
+      console.log(`[Analytics] ${event}`, properties ?? '');
+    }
+    // TODO: Replace with posthog.capture(event, properties)
+  },
 
-// Pre-defined event names for consistency
+  screen(screenName: string, properties?: Record<string, any>) {
+    this.track('screen_view', { screen: screenName, ...properties });
+  },
+
+  identify(userId: string, traits?: Record<string, any>) {
+    if (isDev) {
+      console.log(`[Analytics] identify: ${userId}`, traits ?? '');
+    }
+    // TODO: Replace with posthog.identify(userId, traits)
+  },
+
+  reset() {
+    eventQueue.length = 0;
+    // TODO: Replace with posthog.reset()
+  },
+
+  getQueue() {
+    return [...eventQueue];
+  },
+};
+
+// Event constants
 export const Events = {
   LISTING_VIEWED: 'listing_viewed',
   LISTING_SAVED: 'listing_saved',
   LISTING_UNSAVED: 'listing_unsaved',
   LISTING_CREATED: 'listing_created',
+  LISTING_SUBMITTED: 'listing_submitted',
   SEARCH_PERFORMED: 'search_performed',
   FILTER_APPLIED: 'filter_applied',
   CHAT_STARTED: 'chat_started',
   MESSAGE_SENT: 'message_sent',
-  SELL_STEP_COMPLETED: 'sell_step_completed',
   PHOTO_UPLOADED: 'photo_uploaded',
-  SIGN_IN: 'sign_in',
-  SIGN_OUT: 'sign_out',
-} as const;
+  CALL_INITIATED: 'call_initiated',
+  PROFILE_UPDATED: 'profile_updated',
+  AUTH_LOGIN: 'auth_login',
+  AUTH_SIGNUP: 'auth_signup',
+  AUTH_LOGOUT: 'auth_logout',
+};

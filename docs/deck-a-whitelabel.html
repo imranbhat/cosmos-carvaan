@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carvaan — White-Label Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --walnut: #6B3A2A;
+    --walnut-deep: #3D1F14;
+    --walnut-dark: #4A251A;
+    --gold: #D4A017;
+    --gold-light: #E8C547;
+    --gold-muted: #C9975A;
+    --cream: #FDF8F3;
+    --cream-dark: #F5EDE4;
+    --surface: #FFFFFF;
+    --text: #1C1210;
+    --text-secondary: #5C4033;
+    --text-muted: #9C8578;
+    --border: #E8DDD5;
+    --success: #2E7D32;
+    --error: #C62828;
+    --slide-transition: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--walnut-deep);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30px);
+    transition: opacity var(--slide-transition), transform var(--slide-transition), visibility 0s 0.7s;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity var(--slide-transition), transform var(--slide-transition), visibility 0s 0s;
+  }
+
+  .slide.active .reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal:nth-child(1) { transition-delay: 0.15s; }
+  .reveal:nth-child(2) { transition-delay: 0.3s; }
+  .reveal:nth-child(3) { transition-delay: 0.45s; }
+  .reveal:nth-child(4) { transition-delay: 0.6s; }
+  .reveal:nth-child(5) { transition-delay: 0.75s; }
+  .reveal:nth-child(6) { transition-delay: 0.9s; }
+
+  /* ─── Backgrounds ─── */
+  .bg-walnut {
+    background: linear-gradient(145deg, var(--walnut-deep) 0%, var(--walnut) 50%, var(--walnut-dark) 100%);
+    color: var(--cream);
+  }
+  .bg-cream {
+    background: var(--cream);
+    color: var(--text);
+  }
+  .bg-white {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .bg-gold {
+    background: linear-gradient(145deg, #B8860B, var(--gold), #DAA520);
+    color: var(--walnut-deep);
+  }
+  .bg-dark {
+    background: linear-gradient(160deg, #1a0e09 0%, var(--walnut-deep) 60%, #2a1610 100%);
+    color: var(--cream);
+  }
+
+  /* ─── Noise overlay ─── */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 256px;
+  }
+  .bg-walnut::before, .bg-dark::before { opacity: 0.06; }
+
+  /* ─── Geometric Kashmir pattern ─── */
+  .pattern-corner {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  .pattern-corner.top-right { top: 30px; right: 30px; }
+  .pattern-corner.bottom-left { bottom: 30px; left: 30px; transform: rotate(180deg); }
+  .pattern-corner svg { width: 100%; height: 100%; }
+  .bg-walnut .pattern-corner, .bg-dark .pattern-corner { opacity: 0.08; }
+
+  /* ─── Typography ─── */
+  h1, h2, h3, .display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .slide-number {
+    position: absolute;
+    bottom: 30px;
+    right: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.4;
+  }
+
+  .brand-tag {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.35;
+  }
+
+  .gold-line {
+    width: 60px;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 2px;
+    margin-bottom: 24px;
+  }
+  .bg-walnut .gold-line, .bg-dark .gold-line { background: var(--gold-light); }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  .bg-walnut .section-label { color: var(--gold-light); opacity: 0.8; }
+  .bg-dark .section-label { color: var(--gold-light); opacity: 0.8; }
+
+  /* ─── Table styles ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+  table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .bg-walnut table th { border-color: rgba(255,255,255,0.15); color: var(--gold-light); }
+  .bg-walnut table td { border-color: rgba(255,255,255,0.08); }
+  .bg-dark table th { border-color: rgba(255,255,255,0.15); color: var(--gold-light); }
+  .bg-dark table td { border-color: rgba(255,255,255,0.08); }
+  .bg-cream table th { border-color: var(--walnut); color: var(--walnut); }
+
+  /* ─── Cards ─── */
+  .card-grid {
+    display: grid;
+    gap: 20px;
+  }
+  .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 28px 24px;
+  }
+  .bg-cream .card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: 0 2px 12px rgba(107,58,42,0.06);
+  }
+  .bg-white .card {
+    background: var(--cream);
+    border-color: var(--border);
+  }
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+  }
+  .card h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .card p {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.75;
+  }
+
+  /* ─── Stat blocks ─── */
+  .stat {
+    text-align: center;
+    padding: 20px;
+  }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .bg-cream .stat-value { color: var(--walnut); }
+  .stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 8px;
+    opacity: 0.6;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── Bullet lists ─── */
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+  }
+  .bullet-list li {
+    position: relative;
+    padding: 8px 0 8px 24px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .bullet-list.small li { font-size: 14px; padding: 5px 0 5px 20px; }
+  .bullet-list.small li::before { top: 12px; width: 6px; height: 6px; }
+
+  /* ─── Two column layout ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .two-col.gap-tight { gap: 40px; }
+
+  /* ─── Roadmap ─── */
+  .roadmap {
+    display: flex;
+    gap: 24px;
+  }
+  .roadmap-phase {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+  }
+  .roadmap-phase::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 12px 12px 0 0;
+  }
+  .roadmap-phase h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+  .roadmap-phase .phase-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* ─── Pricing table ─── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .pricing-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(107,58,42,0.12);
+  }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, #FFFDF8, var(--surface));
+  }
+  .pricing-card.featured::after {
+    content: 'RECOMMENDED';
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 4px 16px;
+    border-radius: 20px;
+  }
+  .pricing-card h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--walnut);
+  }
+  .pricing-card .price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .pricing-card p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Cover special ─── */
+  .cover-title {
+    font-size: 86px;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover-subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+    margin-bottom: 48px;
+  }
+  .cover-meta {
+    font-size: 14px;
+    opacity: 0.4;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── App showcase ─── */
+  .app-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: rgba(212,160,23,0.12);
+    border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold-light);
+  }
+  .app-badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4CAF50;
+  }
+
+  /* ─── Progress bar ─── */
+  .nav-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--gold);
+    z-index: 100;
+    transition: width 0.5s ease;
+  }
+
+  /* ─── Navigation hint ─── */
+  .nav-hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.25;
+    color: var(--cream);
+    z-index: 50;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .nav-hint.hidden { opacity: 0; }
+
+  /* ─── Emphasis ─── */
+  .highlight {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .bg-cream .highlight, .bg-white .highlight { color: var(--walnut); }
+  strong { font-weight: 700; }
+
+  /* ─── Deliverable row ─── */
+  .deliverable-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .deliverable-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--cream);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .deliverable-item .check {
+    color: var(--success);
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .deliverable-item h5 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .deliverable-item p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ─── CTA button ─── */
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212,160,23,0.3);
+  }
+
+  /* Big quote */
+  .big-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.4;
+    max-width: 700px;
+  }
+  .big-quote::before {
+    content: '\201C';
+    display: block;
+    font-size: 80px;
+    line-height: 0.5;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--walnut-deep);
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .step-item div h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+  .step-item div p {
+    font-size: 14px;
+    opacity: 0.65;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="nav-progress" id="progress"></div>
+<div class="nav-hint" id="navHint">Arrow keys or click to navigate</div>
+
+<div class="deck" id="deck">
+
+  <!-- ═══ SLIDE 1: COVER ═══ -->
+  <div class="slide bg-dark active" data-slide="0">
+    <div class="pattern-corner top-right"><svg viewBox="0 0 200 200" fill="none" stroke="rgba(212,160,23,0.5)" stroke-width="1"><path d="M10,100 Q10,10 100,10"/><path d="M30,100 Q30,30 100,30"/><path d="M50,100 Q50,50 100,50"/><path d="M70,100 Q70,70 100,70"/><circle cx="100" cy="10" r="4" fill="rgba(212,160,23,0.3)"/><circle cx="100" cy="30" r="3" fill="rgba(212,160,23,0.3)"/><circle cx="100" cy="50" r="3" fill="rgba(212,160,23,0.3)"/></svg></div>
+    <div class="pattern-corner bottom-left"><svg viewBox="0 0 200 200" fill="none" stroke="rgba(212,160,23,0.5)" stroke-width="1"><path d="M10,100 Q10,10 100,10"/><path d="M30,100 Q30,30 100,30"/><path d="M50,100 Q50,50 100,50"/><path d="M70,100 Q70,70 100,70"/><circle cx="100" cy="10" r="4" fill="rgba(212,160,23,0.3)"/></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div class="reveal section-label">White-Label Platform</div>
+      <h1 class="reveal cover-title">Carvaan</h1>
+      <p class="reveal cover-subtitle">The trusted used-car marketplace platform — built for Kashmir</p>
+      <div class="reveal" style="display:flex;gap:16px;margin-bottom:48px;">
+        <span class="app-badge"><span class="dot"></span> iOS & Android</span>
+        <span class="app-badge"><span class="dot"></span> Web Marketplace</span>
+        <span class="app-badge"><span class="dot"></span> Admin Dashboard</span>
+      </div>
+      <p class="reveal cover-meta">Presented by Zeeshan / CosmicPulse &nbsp;&bull;&nbsp; March–April 2026</p>
+    </div>
+    <div class="slide-number">01 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 2: THE PROBLEM ═══ -->
+  <div class="slide bg-cream" data-slide="1">
+    <div class="reveal section-label">The Problem</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:46px;max-width:800px;margin-bottom:36px;">Kashmir's car market is booming — but stuck in the <em>offline era</em></h2>
+    <div class="reveal two-col gap-tight" style="margin-top:12px;">
+      <ul class="bullet-list">
+        <li>Buyers drive dealer to dealer wasting time and fuel</li>
+        <li>Sellers rely on word-of-mouth and roadside boards</li>
+        <li>No trusted platform built for Kashmir's market</li>
+      </ul>
+      <ul class="bullet-list">
+        <li>National platforms ignore local needs and cities</li>
+        <li>Price manipulation erodes buyer trust</li>
+        <li style="font-weight:700;color:var(--walnut);">Result: Deals take weeks. Good cars sit unsold.</li>
+      </ul>
+    </div>
+    <div class="slide-number" style="color:var(--text-muted);">02 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 3: THE OPPORTUNITY ═══ -->
+  <div class="slide bg-walnut" data-slide="2">
+    <div class="reveal section-label">The Opportunity</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:42px;max-width:700px;margin-bottom:48px;">The first mover who digitizes Kashmir's used-car market <em>wins</em></h2>
+    <div class="reveal card-grid cols-4" style="margin-top:8px;">
+      <div class="stat">
+        <div class="stat-value">~$30B</div>
+        <div class="stat-label">India's used-car market, growing 15% YoY</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">50K+</div>
+        <div class="stat-label">Kashmir used-car transactions per year</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">95%</div>
+        <div class="stat-label">Transactions that are purely offline</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">70%+</div>
+        <div class="stat-label">Smartphone penetration in J&K</div>
+      </div>
+    </div>
+    <div class="slide-number">03 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 4: INTRODUCING CARVAAN ═══ -->
+  <div class="slide bg-cream" data-slide="3">
+    <div class="reveal section-label">The Solution</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:42px;max-width:750px;margin-bottom:16px;">A complete, production-ready marketplace platform</h2>
+    <p class="reveal" style="font-size:18px;color:var(--text-secondary);max-width:600px;margin-bottom:40px;">Three integrated applications. Purpose-built for Kashmir. Ready to launch under your brand.</p>
+    <div class="reveal card-grid cols-3">
+      <div class="card" style="text-align:center;padding:36px 24px;">
+        <div class="card-icon">&#128241;</div>
+        <h4>Mobile App</h4>
+        <p>iOS & Android<br>React Native + Expo</p>
+        <div style="margin-top:14px;"><span class="app-badge" style="background:rgba(46,125,50,0.1);border-color:rgba(46,125,50,0.3);color:var(--success);font-size:11px;">BUILT & FUNCTIONAL</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:36px 24px;">
+        <div class="card-icon">&#127760;</div>
+        <h4>Web Marketplace</h4>
+        <p>Desktop & Mobile browsers<br>Next.js + Tailwind</p>
+        <div style="margin-top:14px;"><span class="app-badge" style="background:rgba(46,125,50,0.1);border-color:rgba(46,125,50,0.3);color:var(--success);font-size:11px;">BUILT & DEPLOYED</span></div>
+      </div>
+      <div class="card" style="text-align:center;padding:36px 24px;">
+        <div class="card-icon">&#9881;&#65039;</div>
+        <h4>Admin Dashboard</h4>
+        <p>Web-based console<br>Full management control</p>
+        <div style="margin-top:14px;"><span class="app-badge" style="background:rgba(46,125,50,0.1);border-color:rgba(46,125,50,0.3);color:var(--success);font-size:11px;">BUILT & DEPLOYED</span></div>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:28px;font-size:17px;font-weight:700;color:var(--walnut);">Your brand. Your rules. Full ownership of the platform.</p>
+    <div class="slide-number" style="color:var(--text-muted);">04 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 5: MOBILE APP ═══ -->
+  <div class="slide bg-dark" data-slide="4">
+    <div class="reveal section-label">Mobile App</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:40px;margin-bottom:32px;">Your showroom in every pocket</h2>
+    <div class="reveal two-col gap-tight">
+      <div>
+        <h4 style="color:var(--gold-light);font-size:13px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;">For Buyers</h4>
+        <ul class="bullet-list small">
+          <li>Browse cars with rich photo galleries, specs, and pricing</li>
+          <li>Search & filter by make, model, year, price, fuel, city</li>
+          <li>Save favorites and track recently viewed cars</li>
+          <li>Real-time chat with sellers — no phone sharing</li>
+          <li>Quick-reply templates for instant engagement</li>
+          <li>Price drop alerts on saved cars</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--gold-light);font-size:13px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;">For Sellers</h4>
+        <ul class="bullet-list small">
+          <li>5-step guided listing — list a car in under 3 minutes</li>
+          <li>Photo upload with camera integration</li>
+          <li>Draft saving — start a listing, finish later</li>
+          <li>My Listings dashboard — track views, saves, status</li>
+          <li>Manage listings — mark sold, edit, or delete</li>
+          <li>Inbox with real-time buyer messages</li>
+        </ul>
+        <div style="margin-top:20px;padding:14px 18px;background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.2);border-radius:10px;font-size:13px;">
+          <strong style="color:var(--gold-light);">Auth:</strong> Phone OTP login &bull; 10 Kashmir cities &bull; Role-based (Buyer / Seller / Both)
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">05 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 6: WEB MARKETPLACE ═══ -->
+  <div class="slide bg-cream" data-slide="5">
+    <div class="reveal section-label">Web Marketplace</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:40px;margin-bottom:12px;">SEO-ready. Always accessible.</h2>
+    <p class="reveal" style="font-size:16px;color:var(--text-secondary);max-width:550px;margin-bottom:32px;">For buyers who browse on desktop or share links on WhatsApp.</p>
+    <div class="reveal two-col gap-tight">
+      <div>
+        <h4 style="color:var(--walnut);font-size:13px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;">Features</h4>
+        <ul class="bullet-list small">
+          <li>Homepage with hero, featured listings, browse-by-make</li>
+          <li>Advanced search with multi-filter sidebar</li>
+          <li>Car detail pages with gallery, specs, seller info</li>
+          <li>Similar cars recommendations</li>
+          <li>Server-side rendered for speed</li>
+          <li>Responsive — works on all screen sizes</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--walnut);font-size:13px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;">Why It Matters</h4>
+        <div class="card-grid" style="grid-template-columns:1fr;gap:12px;">
+          <div class="card" style="padding:16px 18px;display:flex;align-items:flex-start;gap:12px;">
+            <span style="font-size:20px;">&#128269;</span>
+            <div><h4 style="font-size:14px;margin-bottom:2px;">Google-Indexed</h4><p style="font-size:12px;">Customers find your cars via search</p></div>
+          </div>
+          <div class="card" style="padding:16px 18px;display:flex;align-items:flex-start;gap:12px;">
+            <span style="font-size:20px;">&#128279;</span>
+            <div><h4 style="font-size:14px;margin-bottom:2px;">Shareable Links</h4><p style="font-size:12px;">Send car pages via WhatsApp & social</p></div>
+          </div>
+          <div class="card" style="padding:16px 18px;display:flex;align-items:flex-start;gap:12px;">
+            <span style="font-size:20px;">&#128187;</span>
+            <div><h4 style="font-size:14px;margin-bottom:2px;">No App Needed</h4><p style="font-size:12px;">Works for casual browsers instantly</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number" style="color:var(--text-muted);">06 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 7: ADMIN DASHBOARD ═══ -->
+  <div class="slide bg-walnut" data-slide="6">
+    <div class="reveal section-label">Admin Dashboard</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:40px;margin-bottom:32px;">Complete business control</h2>
+    <div class="reveal card-grid cols-2" style="max-width:900px;">
+      <div class="card">
+        <div class="card-icon">&#128202;</div>
+        <h4>Dashboard Overview</h4>
+        <p>Total listings, active users, pending reviews, revenue — at a glance with trend indicators</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128203;</div>
+        <h4>Listings Management</h4>
+        <p>Approve/reject listings, feature premium cars, filter by status, click for detail view</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128101;</div>
+        <h4>User Management</h4>
+        <p>View all users with roles, track activity, search by buyer/seller/both</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">&#128172;</div>
+        <h4>Messages & Settings</h4>
+        <p>Monitor conversations, configure platform policies and preferences</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:24px;font-size:15px;opacity:0.7;">Real-time data — every action reflects immediately across all apps.</p>
+    <div class="slide-number">07 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 8: KASHMIR-FIRST DESIGN ═══ -->
+  <div class="slide bg-cream" data-slide="7">
+    <div class="reveal section-label">Kashmir-First Design</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:40px;margin-bottom:32px;">Every pixel designed for <em>this</em> market</h2>
+    <div class="reveal" style="max-width:860px;">
+      <table>
+        <thead><tr><th>Element</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600;">Color Palette</td><td>Walnut Brown & Gold — inspired by Kashmir's craft heritage</td></tr>
+          <tr><td style="font-weight:600;">Cities</td><td>Srinagar, Jammu, Baramulla, Anantnag, Sopore, Pulwama, Kupwara, Budgam, Shopian, Bandipora</td></tr>
+          <tr><td style="font-weight:600;">Car Makes</td><td>Maruti Suzuki, Hyundai, Mahindra, Tata, Toyota, Honda, Kia, MG, Renault, VW</td></tr>
+          <tr><td style="font-weight:600;">Currency</td><td>INR with Indian number formatting (Lakhs)</td></tr>
+          <tr><td style="font-weight:600;">Price Range</td><td>Optimized for INR 1–50 Lakh</td></tr>
+          <tr><td style="font-weight:600;">Seed Data</td><td>Real Indian market car models and variants</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="reveal" style="margin-top:28px;font-size:17px;font-weight:700;color:var(--walnut);">This isn't a generic template. It's built for how people buy and sell cars here.</p>
+    <div class="slide-number" style="color:var(--text-muted);">08 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 9: TECH STACK ═══ -->
+  <div class="slide bg-dark" data-slide="8">
+    <div class="reveal section-label">Technology Stack</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:38px;margin-bottom:28px;">Enterprise-grade. Battle-tested.</h2>
+    <div class="reveal" style="max-width:900px;">
+      <table style="font-size:14px;">
+        <thead><tr><th>Layer</th><th>Technology</th><th>Why It Matters</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600;">Mobile</td><td>React Native 0.83 + Expo SDK 55</td><td>Single codebase for iOS + Android. OTA updates.</td></tr>
+          <tr><td style="font-weight:600;">Web</td><td>Next.js 16 + Tailwind CSS 4</td><td>Server-rendered for speed and SEO.</td></tr>
+          <tr><td style="font-weight:600;">Database</td><td>Supabase (PostgreSQL)</td><td>Rock-solid relational DB with real-time.</td></tr>
+          <tr><td style="font-weight:600;">Auth</td><td>Supabase Auth (Phone OTP)</td><td>Secure, passwordless. Zero friction.</td></tr>
+          <tr><td style="font-weight:600;">Storage</td><td>Supabase Storage</td><td>Cloud-hosted photos and avatars.</td></tr>
+          <tr><td style="font-weight:600;">Messaging</td><td>Supabase Realtime</td><td>Instant delivery — no polling, no delays.</td></tr>
+          <tr><td style="font-weight:600;">Search</td><td>Full-Text + Trigram</td><td>Fast, fuzzy search across all listings.</td></tr>
+          <tr><td style="font-weight:600;">CI/CD</td><td>GitHub Actions + EAS Build</td><td>Automated testing, linting, native builds.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="reveal" style="margin-top:24px;font-size:15px;opacity:0.65;">All open-source foundations. No vendor lock-in. You own everything.</p>
+    <div class="slide-number">09 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 10: DATABASE ═══ -->
+  <div class="slide bg-cream" data-slide="9">
+    <div class="reveal section-label">Database Architecture</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:38px;margin-bottom:32px;">Production-grade schema, 7 migrations</h2>
+    <div class="reveal card-grid cols-3" style="max-width:900px;">
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Profiles</h4>
+        <p>User management with roles, ratings, location</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Car Master Data</h4>
+        <p>Makes &rarr; Models &rarr; Variants hierarchy</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Listings</h4>
+        <p>Full lifecycle: draft &rarr; pending &rarr; active &rarr; sold</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Photos</h4>
+        <p>Multi-photo with primary selection and ordering</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Messaging</h4>
+        <p>Threads with unread counts and real-time updates</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Interactions</h4>
+        <p>Saves, views, and reports for analytics</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Full-Text Search</h4>
+        <p>Auto-updated vectors with fuzzy matching</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Storage</h4>
+        <p>Dedicated buckets for photos and avatars</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <h4 style="color:var(--walnut);font-size:14px;">Row-Level Security</h4>
+        <p>Every table has RLS policies enforced</p>
+      </div>
+    </div>
+    <div class="slide-number" style="color:var(--text-muted);">10 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 11: ROADMAP ═══ -->
+  <div class="slide bg-dark" data-slide="10">
+    <div class="reveal section-label">Roadmap</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:38px;margin-bottom:36px;">What's coming next</h2>
+    <div class="reveal roadmap">
+      <div class="roadmap-phase">
+        <h4>Phase 2 &mdash; Q2 2026</h4>
+        <div class="phase-title">Engagement &amp; Trust</div>
+        <ul class="bullet-list small">
+          <li>130-point inspection workflow</li>
+          <li>Buyer reviews & seller ratings</li>
+          <li>Push notifications</li>
+          <li>Social auth (Google, Apple)</li>
+          <li>Offer & counter-offer in chat</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase">
+        <h4>Phase 3 &mdash; Q3 2026</h4>
+        <div class="phase-title">Monetization &amp; Growth</div>
+        <ul class="bullet-list small">
+          <li>Featured listing packages</li>
+          <li>Dealer subscription plans</li>
+          <li>Test drive booking</li>
+          <li>EMI calculator & finance partners</li>
+          <li>Advanced seller analytics</li>
+        </ul>
+      </div>
+      <div class="roadmap-phase">
+        <h4>Phase 4 &mdash; Q4 2026</h4>
+        <div class="phase-title">Market Expansion</div>
+        <ul class="bullet-list small">
+          <li>Video walkaround uploads</li>
+          <li>AI-powered price suggestions</li>
+          <li>Dealer CRM features</li>
+          <li>Insurance & RTO assistance</li>
+          <li>Expand to neighboring states</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-number">11 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 12: WHAT YOU GET ═══ -->
+  <div class="slide bg-white" data-slide="11">
+    <div class="reveal section-label">What You Get</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:38px;margin-bottom:32px;">Complete platform, ready to launch</h2>
+    <div class="reveal deliverable-grid">
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Mobile App (iOS + Android)</h5><p>Complete source code, app store ready</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Web Marketplace</h5><p>Deployed, SEO-optimized, shareable</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Admin Dashboard</h5><p>Full management console</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Database + Migrations</h5><p>Complete schema with seed data</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>CI/CD Pipeline</h5><p>Automated builds, tests, deployment</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Full Source Code</h5><p>Own it — modify, extend, rebrand freely</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>White-Label Ready</h5><p>Your name, logo, colors — your brand</p></div>
+      </div>
+      <div class="deliverable-item">
+        <span class="check">&#10003;</span>
+        <div><h5>Setup & Support</h5><p>Deployment, handover, and onboarding</p></div>
+      </div>
+    </div>
+    <div class="slide-number" style="color:var(--text-muted);">12 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 13: PRICING ═══ -->
+  <div class="slide bg-cream" data-slide="12">
+    <div class="reveal section-label">Pricing Options</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:38px;margin-bottom:40px;">Flexible models to fit your business</h2>
+    <div class="reveal pricing-grid" style="max-width:860px;">
+      <div class="pricing-card">
+        <h4>One-Time Purchase</h4>
+        <div class="price">Full ownership</div>
+        <p>Complete source code + deployment + 3 months of support and bug fixes</p>
+      </div>
+      <div class="pricing-card featured">
+        <h4>License + Maintenance</h4>
+        <div class="price">Ongoing partnership</div>
+        <p>Platform license + continuous updates, hosting management, and dedicated support</p>
+      </div>
+      <div class="pricing-card">
+        <h4>Revenue Share</h4>
+        <div class="price">Low upfront cost</div>
+        <p>Reduced initial investment + percentage of platform transactions or subscriptions</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:28px;font-size:14px;color:var(--text-muted);text-align:center;">Pricing finalized based on scope of customization and support needed.</p>
+    <div class="slide-number" style="color:var(--text-muted);">13 / 15</div>
+    <div class="brand-tag" style="color:var(--text-muted);">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 14: WHY NOW ═══ -->
+  <div class="slide bg-walnut" data-slide="13">
+    <div class="reveal section-label">Why Now</div>
+    <div class="reveal gold-line"></div>
+    <h2 class="reveal" style="font-size:42px;margin-bottom:40px;">Five reasons to act today</h2>
+    <div class="reveal steps-list" style="max-width:700px;">
+      <div class="step-item">
+        <span class="step-number">1</span>
+        <div><h4>Digital adoption is accelerating</h4><p>Smartphones are everywhere, UPI is mainstream in Kashmir</p></div>
+      </div>
+      <div class="step-item">
+        <span class="step-number">2</span>
+        <div><h4>No credible local competitor</h4><p>The market is wide open — first mover advantage is real</p></div>
+      </div>
+      <div class="step-item">
+        <span class="step-number">3</span>
+        <div><h4>National platforms ignore tier-2/3 cities</h4><p>Your local brand trust is the moat they can't build</p></div>
+      </div>
+      <div class="step-item">
+        <span class="step-number">4</span>
+        <div><h4>The platform is ready TODAY</h4><p>Not a pitch for something to be built — it works right now</p></div>
+      </div>
+      <div class="step-item">
+        <span class="step-number">5</span>
+        <div><h4>Your reputation + our technology</h4><p>An unstoppable combination for market dominance</p></div>
+      </div>
+    </div>
+    <div class="slide-number">14 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+  <!-- ═══ SLIDE 15: NEXT STEPS / CTA ═══ -->
+  <div class="slide bg-dark" data-slide="14">
+    <div class="pattern-corner top-right"><svg viewBox="0 0 200 200" fill="none" stroke="rgba(212,160,23,0.5)" stroke-width="1"><path d="M10,100 Q10,10 100,10"/><path d="M30,100 Q30,30 100,30"/><path d="M50,100 Q50,50 100,50"/></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+      <div class="reveal section-label">Next Steps</div>
+      <div class="reveal gold-line" style="margin-left:auto;margin-right:auto;"></div>
+      <h2 class="reveal" style="font-size:48px;max-width:700px;margin-bottom:48px;">Let's build Kashmir's #1 car marketplace — <em>together</em></h2>
+      <div class="reveal steps-list" style="text-align:left;max-width:520px;margin-bottom:48px;">
+        <div class="step-item">
+          <span class="step-number">1</span>
+          <div><h4>Live Demo</h4><p>We walk you through the app on your phone</p></div>
+        </div>
+        <div class="step-item">
+          <span class="step-number">2</span>
+          <div><h4>Customization Discussion</h4><p>Your brand, your colors, your features</p></div>
+        </div>
+        <div class="step-item">
+          <span class="step-number">3</span>
+          <div><h4>Pilot Launch</h4><p>Go live with your inventory in 2–4 weeks</p></div>
+        </div>
+        <div class="step-item">
+          <span class="step-number">4</span>
+          <div><h4>Scale</h4><p>Add features, grow users, dominate the market</p></div>
+        </div>
+      </div>
+      <div class="reveal cover-meta" style="margin-top:20px;">
+        Zeeshan / CosmicPulse &nbsp;&bull;&nbsp; zeeshan@cosmicpulse.com
+      </div>
+    </div>
+    <div class="slide-number">15 / 15</div>
+    <div class="brand-tag">Carvaan</div>
+  </div>
+
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const progress = document.getElementById('progress');
+  const navHint = document.getElementById('navHint');
+  let current = 0;
+  const total = slides.length;
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    if (current > 0) navHint.classList.add('hidden');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.clientX > window.innerWidth / 2) goTo(current + 1);
+    else goTo(current - 1);
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+
+  // Init
+  progress.style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   FlatList,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -22,6 +24,7 @@ import { formatPrice, formatMileage, timeAgo } from '@/lib/format';
 import { getOrCreateConversation } from '@/hooks/useSendMessage';
 import { useAuthStore } from '@/stores/authStore';
 import { useRecentlyViewedStore } from '@/stores/recentlyViewedStore';
+import { Analytics, Events } from '@/lib/analytics';
 import { colors, borderRadius, spacing, typography, shadows } from '@/constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -40,6 +43,11 @@ export default function CarDetailScreen() {
   useEffect(() => {
     if (id) addViewed(id);
   }, [id, addViewed]);
+
+  useEffect(() => {
+    Analytics.screen('CarDetail', { listingId: id });
+    Analytics.track(Events.LISTING_VIEWED, { listingId: id });
+  }, [id]);
 
   const {
     data: similarListings = [],
@@ -279,7 +287,14 @@ export default function CarDetailScreen() {
         />
         <Button
           title="Call"
-          onPress={() => {/* TODO: initiate call */}}
+          onPress={() => {
+            const phone = listing?.seller?.phone;
+            if (!phone) {
+              Alert.alert('Phone unavailable', 'This seller has not shared a phone number.');
+              return;
+            }
+            Linking.openURL(`tel:${phone}`);
+          }}
           variant="outline"
           fullWidth={false}
           style={{ flex: 0.4, marginLeft: spacing.sm }}

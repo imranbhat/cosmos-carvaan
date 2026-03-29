@@ -3,6 +3,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { queryConfig } from '@/constants/config';
 import { toggleSaveCar, fetchSavedCarIds } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
+import { Analytics, Events } from '@/lib/analytics';
 
 export function useSavedCarIds() {
   const userId = useAuthStore((s) => s.profile?.id);
@@ -26,6 +27,7 @@ export function useToggleSave() {
       const previous = queryClient.getQueryData<string[]>(queryKeys.savedCars) ?? [];
 
       const isSaved = previous.includes(listingId);
+      Analytics.track(isSaved ? Events.LISTING_UNSAVED : Events.LISTING_SAVED, { listingId });
       queryClient.setQueryData<string[]>(
         queryKeys.savedCars,
         isSaved ? previous.filter((id) => id !== listingId) : [...previous, listingId]

@@ -1,31 +1,51 @@
-/**
- * Error reporting utility.
- *
- * For production, integrate Sentry:
- *   npm install @sentry/react-native
- *   Sentry.init({ dsn: 'YOUR_DSN', tracesSampleRate: 0.2 });
- *
- * For now, this module provides a consistent API so all error
- * capture calls can be upgraded to Sentry in one place.
- */
+const isDev = __DEV__;
 
-export function captureException(error: unknown, context?: Record<string, unknown>) {
-  if (__DEV__) {
-    console.error('[Error]', error, context);
-  }
-  // TODO: Sentry.captureException(error, { extra: context });
+interface ErrorEntry {
+  error: Error | string;
+  context?: Record<string, any>;
+  timestamp: string;
+  level: 'error' | 'warning' | 'info';
 }
 
-export function captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info') {
-  if (__DEV__) {
-    console.log(`[${level.toUpperCase()}]`, message);
-  }
-  // TODO: Sentry.captureMessage(message, level);
-}
+const errorLog: ErrorEntry[] = [];
 
-export function setUser(id: string | null, email?: string) {
-  if (__DEV__) {
-    console.log('[User]', id, email);
-  }
-  // TODO: Sentry.setUser(id ? { id, email } : null);
-}
+export const ErrorReporter = {
+  captureException(error: Error, context?: Record<string, any>) {
+    const entry: ErrorEntry = {
+      error,
+      context,
+      timestamp: new Date().toISOString(),
+      level: 'error',
+    };
+    errorLog.push(entry);
+    if (isDev) {
+      console.error(`[ErrorReporter] ${error.message}`, context ?? '');
+    }
+    // TODO: Replace with Sentry.captureException(error, { extra: context })
+  },
+
+  captureMessage(message: string, level: 'error' | 'warning' | 'info' = 'info', context?: Record<string, any>) {
+    const entry: ErrorEntry = {
+      error: message,
+      context,
+      timestamp: new Date().toISOString(),
+      level,
+    };
+    errorLog.push(entry);
+    if (isDev) {
+      console.log(`[ErrorReporter:${level}] ${message}`, context ?? '');
+    }
+    // TODO: Replace with Sentry.captureMessage(message, level)
+  },
+
+  setUser(id: string, email?: string) {
+    if (isDev) {
+      console.log(`[ErrorReporter] setUser: ${id}`, email ?? '');
+    }
+    // TODO: Replace with Sentry.setUser({ id, email })
+  },
+
+  getLog() {
+    return [...errorLog];
+  },
+};
