@@ -15,10 +15,9 @@ import {
   MessageCircle,
   Star,
   ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import ContactButtons from "./ContactButtons";
+import ImageGallery from "./ImageGallery";
 
 interface CarDetail {
   id: string;
@@ -308,9 +307,6 @@ export default async function CarDetailPage({
     },
   ];
 
-  const primaryPhoto =
-    car.photos.find((p) => p.isPrimary) ?? car.photos[0];
-
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Breadcrumb */}
@@ -326,57 +322,11 @@ export default async function CarDetailPage({
         {/* Left Column - Photos & Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Photo Gallery */}
-          <div className="space-y-3">
-            <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-gray-100">
-              <Image
-                src={primaryPhoto.url}
-                alt={`${car.year} ${car.make} ${car.model}`}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 66vw"
-              />
-              {car.photos.length > 1 && (
-                <>
-                  <button className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-              {car.inspectionStatus === "passed" && (
-                <span className="absolute top-3 left-3 bg-success text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Inspected
-                </span>
-              )}
-            </div>
-
-            {car.photos.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {car.photos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className={`relative w-24 h-18 shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer ${
-                      index === 0
-                        ? "border-primary"
-                        : "border-transparent hover:border-border"
-                    }`}
-                  >
-                    <Image
-                      src={photo.thumbnailUrl}
-                      alt={`Photo ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ImageGallery
+            photos={car.photos}
+            alt={`${car.year} ${car.make} ${car.model}`}
+            inspectionStatus={car.inspectionStatus}
+          />
 
           {/* Title & Price (mobile) */}
           <div className="lg:hidden">
