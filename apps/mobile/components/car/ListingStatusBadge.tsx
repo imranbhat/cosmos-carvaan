@@ -6,6 +6,7 @@ const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'success'
   active: { label: 'Active', variant: 'success' },
   sold: { label: 'Sold', variant: 'accent' },
   expired: { label: 'Expired', variant: 'muted' },
+  rejected: { label: 'Rejected', variant: 'muted' },
 };
 
 interface ListingStatusBadgeProps {

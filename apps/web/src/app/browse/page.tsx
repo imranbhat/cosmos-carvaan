@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import CarCard, { type CarCardProps } from "@/components/CarCard";
 import { supabase } from "@/lib/supabase";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, AlertTriangle } from "lucide-react";
 
 const mockListings: CarCardProps[] = [
   {
@@ -148,6 +149,13 @@ const bodyTypes = ["Sedan", "SUV", "Hatchback", "Truck", "Coupe", "Van", "Conver
 const fuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric"];
 const transmissions = ["Automatic", "Manual"];
 
+/** Match a URL param value (case-insensitive) against a list of known options */
+function matchOption(value: string | null, options: string[]): string {
+  if (!value) return "";
+  const lower = value.toLowerCase();
+  return options.find((o) => o.toLowerCase() === lower) ?? "";
+}
+
 interface Filters {
   make: string;
   priceMin: string;
@@ -170,14 +178,53 @@ const defaultFilters: Filters = {
   transmission: "",
 };
 
-export default function BrowsePage() {
-  const [listings, setListings] = useState<CarCardProps[]>(mockListings);
-  const [filters, setFilters] = useState<Filters>(defaultFilters);
+function applyClientFilters(data: CarCardProps[], filters: Filters): CarCardProps[] {
+  let filtered = [...data];
+  if (filters.make) {
+    filtered = filtered.filter((c) => c.make === filters.make);
+  }
+  if (filters.priceMin) {
+    filtered = filtered.filter((c) => c.price >= parseInt(filters.priceMin));
+  }
+  if (filters.priceMax) {
+    filtered = filtered.filter((c) => c.price <= parseInt(filters.priceMax));
+  }
+  if (filters.yearMin) {
+    filtered = filtered.filter((c) => c.year >= parseInt(filters.yearMin));
+  }
+  if (filters.yearMax) {
+    filtered = filtered.filter((c) => c.year <= parseInt(filters.yearMax));
+  }
+  if (filters.fuelType) {
+    filtered = filtered.filter((c) => c.fuelType === filters.fuelType);
+  }
+  return filtered;
+}
+
+function BrowsePageInner() {
+  const searchParams = useSearchParams();
+
+  const initialFilters: Filters = {
+    make: matchOption(searchParams.get("make"), makes),
+    priceMin: searchParams.get("priceMin") ?? "",
+    priceMax: searchParams.get("priceMax") ?? "",
+    yearMin: searchParams.get("yearMin") ?? "",
+    yearMax: searchParams.get("yearMax") ?? "",
+    bodyType: matchOption(searchParams.get("body"), bodyTypes),
+    fuelType: matchOption(searchParams.get("fuel"), fuelTypes),
+    transmission: matchOption(searchParams.get("transmission"), transmissions),
+  };
+
+  const [listings, setListings] = useState<CarCardProps[]>([]);
+  const [filters, setFilters] = useState<Filters>(initialFilters);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       let query = supabase
         .from("listings")
@@ -223,34 +270,22 @@ export default function BrowsePage() {
         query = query.eq("car_variants.transmission", filters.transmission.toLowerCase());
       }
 
-      const { data, error } = await query.limit(24);
+      const { data, error: queryError } = await query.limit(24);
 
-      if (error || !data || data.length === 0) {
-        // Fall back to mock data, applying client-side filters
-        let filtered = [...mockListings];
-        if (filters.make) {
-          filtered = filtered.filter((c) => c.make === filters.make);
-        }
-        if (filters.priceMin) {
-          filtered = filtered.filter((c) => c.price >= parseInt(filters.priceMin));
-        }
-        if (filters.priceMax) {
-          filtered = filtered.filter((c) => c.price <= parseInt(filters.priceMax));
-        }
-        if (filters.yearMin) {
-          filtered = filtered.filter((c) => c.year >= parseInt(filters.yearMin));
-        }
-        if (filters.yearMax) {
-          filtered = filtered.filter((c) => c.year <= parseInt(filters.yearMax));
-        }
-        if (filters.fuelType) {
-          filtered = filtered.filter((c) => c.fuelType === filters.fuelType);
-        }
-        setListings(filtered);
+      if (queryError) {
+        // Supabase returned an error -- fall back to mock data
+        setUsingMockData(true);
+        setListings(applyClientFilters(mockListings, filters));
+      } else if (!data || data.length === 0) {
+        // No rows in DB -- fall back to mock data with filters
+        setUsingMockData(true);
+        setListings(applyClientFilters(mockListings, filters));
       } else {
+        // Map Supabase rows to CarCardProps
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapped: CarCardProps[] = data.map((item: any) => {
           const photos = item.listing_photos ?? [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const primary = photos.find((p: any) => p.is_primary) ?? photos[0];
           return {
             id: item.id,
@@ -268,18 +303,14 @@ export default function BrowsePage() {
             featured: item.featured,
           };
         });
+        setUsingMockData(false);
         setListings(mapped);
       }
     } catch {
-      // On any error, use mock data with client-side filters
-      let filtered = [...mockListings];
-      if (filters.make) {
-        filtered = filtered.filter((c) => c.make === filters.make);
-      }
-      if (filters.fuelType) {
-        filtered = filtered.filter((c) => c.fuelType === filters.fuelType);
-      }
-      setListings(filtered);
+      // Network / unexpected error -- fall back to mock data
+      setUsingMockData(true);
+      setError("Could not connect to database. Showing sample listings.");
+      setListings(applyClientFilters(mockListings, filters));
     } finally {
       setLoading(false);
     }
@@ -332,7 +363,7 @@ export default function BrowsePage() {
 
       {/* Price Range */}
       <div>
-        <label className="block text-sm font-semibold text-text mb-2">Price Range (₹)</label>
+        <label className="block text-sm font-semibold text-text mb-2">Price Range (Rs.)</label>
         <div className="flex gap-2">
           <input
             type="number"
@@ -450,6 +481,23 @@ export default function BrowsePage() {
         </button>
       </div>
 
+      {/* Error / mock data banner */}
+      {!loading && usingMockData && (
+        <div className="mb-6 rounded-lg bg-accent/10 border border-accent/20 px-4 py-3 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-medium text-text">
+              {error ?? "Showing sample listings"}
+            </p>
+            <p className="text-text-secondary mt-0.5">
+              {error
+                ? "Please check your connection and try again."
+                : "No live listings found in the database. These are sample cars for demonstration."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-8">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:block w-64 shrink-0">
@@ -528,5 +576,30 @@ export default function BrowsePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-8 bg-gray-200 rounded w-48 mb-6 animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-surface rounded-xl border border-border overflow-hidden animate-pulse">
+                <div className="aspect-[4/3] bg-gray-200" />
+                <div className="p-4 space-y-3">
+                  <div className="h-5 bg-gray-200 rounded w-3/4" />
+                  <div className="h-6 bg-gray-200 rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <BrowsePageInner />
+    </Suspense>
   );
 }

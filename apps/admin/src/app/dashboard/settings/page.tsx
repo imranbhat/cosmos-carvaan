@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Save, Loader2, Check } from "lucide-react";
+import { saveSettings, getSettings } from "../actions";
 
 export default function SettingsPage() {
   const [general, setGeneral] = useState({
@@ -24,6 +25,66 @@ export default function SettingsPage() {
     dailyDigest: true,
     weeklyReport: true,
   });
+
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const data = await getSettings();
+        if (data) {
+          setGeneral({
+            platformName: data.platformName ?? "Carvaan",
+            currency: data.currency ?? "INR",
+            defaultLanguage: data.defaultLanguage ?? "en",
+          });
+          setCommission({
+            sellerCommission: data.sellerCommission ?? "2.5",
+            featuredListingFee: data.featuredListingFee ?? "50",
+            premiumListingFee: data.premiumListingFee ?? "150",
+          });
+          if (data.notifications) {
+            setNotifications((prev) => ({ ...prev, ...data.notifications }));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load settings:", e);
+      } finally {
+        setLoadingSettings(false);
+      }
+    }
+    loadSettings();
+  }, []);
+
+  async function handleSave() {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await saveSettings({
+        ...general,
+        ...commission,
+        notifications,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e) {
+      console.error("Failed to save settings:", e);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loadingSettings) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-48 animate-pulse rounded-xl border border-admin-border bg-surface" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -228,10 +289,24 @@ export default function SettingsPage() {
       </div>
 
       {/* Save button */}
-      <div className="flex justify-end">
-        <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark">
-          <Save className="h-4 w-4" />
-          Save Changes
+      <div className="flex items-center justify-end gap-3">
+        {saved && (
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success">
+            <Check className="h-4 w-4" />
+            Settings saved
+          </span>
+        )}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+        >
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
     </div>

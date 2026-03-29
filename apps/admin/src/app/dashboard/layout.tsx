@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   Car,
@@ -13,6 +14,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 
 const navItems = [
@@ -36,7 +38,32 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminInitials, setAdminInitials] = useState("A");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setAdminEmail(user.email ?? "");
+        const meta = user.user_metadata;
+        const name = meta?.full_name ?? meta?.name ?? user.email ?? "";
+        const initials = name.includes("@")
+          ? name[0].toUpperCase()
+          : name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        setAdminInitials(initials || "A");
+      }
+    });
+  }, []);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   const isActive = (href: string) =>
     href === "/dashboard"
@@ -78,15 +105,33 @@ export default function DashboardLayout({
       </nav>
 
       <div className="border-t border-admin-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white">
-            A
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-admin-text">Admin User</p>
-            <p className="truncate text-xs text-admin-text-tertiary">admin@carvaan.in</p>
-          </div>
-          <ChevronDown className="h-4 w-4 text-admin-text-tertiary" />
+        <div className="relative">
+          <button
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            className="flex w-full items-center gap-3 rounded-lg p-1 hover:bg-admin-bg transition-colors"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white">
+              {adminInitials}
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="truncate text-sm font-medium text-admin-text">{adminEmail || "Admin"}</p>
+              <p className="truncate text-xs text-admin-text-tertiary">Administrator</p>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-admin-text-tertiary transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {userMenuOpen && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 rounded-lg border border-admin-border bg-surface shadow-lg">
+              <button
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-error hover:bg-red-50 transition-colors disabled:opacity-60"
+              >
+                <LogOut className="h-4 w-4" />
+                {signingOut ? "Signing out..." : "Sign out"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -125,13 +170,19 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="relative rounded-lg p-2 text-admin-text-secondary hover:bg-admin-bg">
+            <button aria-label="Notifications" className="relative rounded-lg p-2 text-admin-text-secondary hover:bg-admin-bg">
               <Bell className="h-5 w-5" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-error" />
             </button>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white">
-              A
-            </div>
+            <button
+              onClick={handleSignOut}
+              disabled={signingOut}
+              title="Sign out"
+              aria-label="Sign out"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-white hover:bg-primary-dark transition-colors disabled:opacity-60"
+            >
+              {adminInitials}
+            </button>
           </div>
         </header>
 

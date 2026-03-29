@@ -105,7 +105,7 @@ export default async function Home() {
               {["Maruti Suzuki", "Hyundai", "Mahindra", "Tata", "Toyota"].map((make) => (
                 <Link
                   key={make}
-                  href={`/browse?make=${make.toLowerCase()}`}
+                  href={`/browse?make=${encodeURIComponent(make)}`}
                   className="text-sm text-white/70 hover:text-white border border-white/20 rounded-full px-4 py-1.5 hover:border-white/40 transition-colors"
                 >
                   {make}
@@ -218,7 +218,7 @@ export default async function Home() {
               </p>
             </div>
             <Link
-              href="#"
+              href="/sell"
               className="shrink-0 bg-white text-primary font-semibold px-8 py-3.5 rounded-xl hover:bg-gray-50 transition-colors"
             >
               List Your Car - It&apos;s Free

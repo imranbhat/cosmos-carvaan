@@ -54,7 +54,7 @@ function FeaturedSection() {
         </Pressable>
       </View>
       <FlatList
-        data={displayData}
+        data={displayData as any[]}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CarCard listing={item as any} horizontal />}
         horizontal
@@ -122,7 +122,7 @@ export default function HomeScreen() {
   return (
     <Screen scroll={false} padded={false}>
       <FlatList
-        data={displayListings}
+        data={displayListings as any[]}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: spacing.xl }}>

@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import ContactButtons from "./ContactButtons";
 
 interface CarDetail {
   id: string;
@@ -97,7 +98,7 @@ const mockCar: CarDetail = {
   },
 };
 
-const similarListings = [
+const mockSimilarListings = [
   {
     id: "2",
     make: "Hyundai",
@@ -134,7 +135,7 @@ const similarListings = [
 ];
 
 function formatPrice(price: number): string {
-  return `₹${price.toLocaleString("en-IN")}`;
+  return `\u20B9${price.toLocaleString("en-IN")}`;
 }
 
 function formatMileage(km: number): string {
@@ -217,6 +218,63 @@ async function getCarDetail(id: string): Promise<CarDetail> {
   }
 }
 
+async function getSimilarListings(
+  currentId: string,
+  price: number,
+  make: string,
+) {
+  try {
+    // Find active listings from the same make, or in a similar price range,
+    // excluding the current listing.
+    const priceLow = Math.round(price * 0.6);
+    const priceHigh = Math.round(price * 1.6);
+
+    const { data, error } = await supabase
+      .from("listings")
+      .select(`
+        id, year, price, mileage, city, featured,
+        car_makes!inner(name),
+        car_models!inner(name),
+        car_variants(fuel_type),
+        listing_photos(url, thumbnail_url, is_primary)
+      `)
+      .eq("status", "active")
+      .neq("id", currentId)
+      .gte("price", priceLow)
+      .lte("price", priceHigh)
+      .order("featured", { ascending: false })
+      .limit(3);
+
+    if (error || !data || data.length === 0) {
+      return mockSimilarListings;
+    }
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    return data.map((item: any) => {
+      const photos = item.listing_photos ?? [];
+      const primary = photos.find((p: any) => p.is_primary) ?? photos[0];
+      return {
+        id: item.id,
+        make: item.car_makes?.name ?? "Unknown",
+        model: item.car_models?.name ?? "Unknown",
+        year: item.year,
+        price: item.price,
+        mileage: item.mileage,
+        city: item.city ?? "Srinagar",
+        fuelType: item.car_variants?.fuel_type ?? "Petrol",
+        imageUrl:
+          primary?.thumbnail_url ??
+          primary?.url ??
+          "https://placehold.co/800x600/e2e8f0/475569.png?text=No+Image",
+        featured: item.featured,
+      };
+    });
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+  } catch {
+    return mockSimilarListings;
+  }
+}
+
 export default async function CarDetailPage({
   params,
 }: {
@@ -224,6 +282,7 @@ export default async function CarDetailPage({
 }) {
   const { id } = await params;
   const car = await getCarDetail(id);
+  const similarListings = await getSimilarListings(id, car.price, car.make);
 
   const specs = [
     { icon: Calendar, label: "Year", value: car.year.toString() },
@@ -398,14 +457,11 @@ export default async function CarDetailPage({
             </div>
 
             <div className="mt-5 space-y-3">
-              <button className="w-full bg-primary text-white font-semibold py-3 rounded-xl hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
-                <Phone className="h-4 w-4" />
-                Show Phone Number
-              </button>
-              <button className="w-full bg-surface text-primary font-semibold py-3 rounded-xl border-2 border-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Send Message
-              </button>
+              <ContactButtons
+                carId={car.id}
+                sellerName={car.seller.name}
+                variant="desktop"
+              />
             </div>
 
             {/* Seller Info */}
@@ -442,15 +498,12 @@ export default async function CarDetailPage({
           </div>
 
           {/* Mobile CTA (fixed bottom) */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border px-4 py-3 z-40 flex gap-3">
-            <button className="flex-1 bg-primary text-white font-semibold py-3 rounded-xl hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
-              <Phone className="h-4 w-4" />
-              Call
-            </button>
-            <button className="flex-1 bg-surface text-primary font-semibold py-3 rounded-xl border-2 border-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              Message
-            </button>
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border px-4 py-3 z-40">
+            <ContactButtons
+              carId={car.id}
+              sellerName={car.seller.name}
+              variant="mobile"
+            />
           </div>
 
           {/* Seller Info (mobile) */}
@@ -485,14 +538,16 @@ export default async function CarDetailPage({
       </div>
 
       {/* Similar Listings */}
-      <section className="mt-16 mb-20 lg:mb-8">
-        <h2 className="text-2xl font-bold text-text mb-6">Similar Cars</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {similarListings.map((car) => (
-            <CarCard key={car.id} {...car} />
-          ))}
-        </div>
-      </section>
+      {similarListings.length > 0 && (
+        <section className="mt-16 mb-20 lg:mb-8">
+          <h2 className="text-2xl font-bold text-text mb-6">Similar Cars</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {similarListings.map((car) => (
+              <CarCard key={car.id} {...car} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
