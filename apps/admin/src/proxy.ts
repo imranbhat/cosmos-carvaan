@@ -1,46 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
 /**
- * Validate the Supabase session by decoding the JWT from cookies.
- * We parse the auth cookie and verify it contains a non-expired access token.
+ * Validate the Supabase session by reading auth cookies set by @supabase/ssr.
+ * Uses createServerClient to properly parse the chunked cookie format.
  */
 async function validateSession(request: NextRequest): Promise<boolean> {
-  const allCookies = request.cookies.getAll();
-  const authCookie = allCookies.find((c) => c.name.includes('auth-token'));
-  if (!authCookie?.value) return false;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return false;
 
   try {
-    // Supabase stores auth data as a JSON-encoded cookie with access_token
-    // Try to parse and validate the JWT is not expired
-    let parsed: { access_token?: string; expires_at?: number } | null = null;
-
-    // Cookie value may be base64-encoded JSON or raw JSON
-    try {
-      parsed = JSON.parse(authCookie.value);
-    } catch {
-      try {
-        parsed = JSON.parse(Buffer.from(authCookie.value, 'base64').toString());
-      } catch {
-        return false;
-      }
-    }
-
-    if (!parsed?.access_token) return false;
-
-    // Check expiration if available
-    if (parsed.expires_at && parsed.expires_at < Math.floor(Date.now() / 1000)) {
-      return false;
-    }
-
-    // Verify the token is valid by calling Supabase auth.getUser
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseAnonKey) return false;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${parsed.access_token}` } },
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll() {
+          // Proxy cannot set cookies on the request — handled by the response below
+        },
+      },
     });
 
     const { data: { user }, error } = await supabase.auth.getUser();
